@@ -1,0 +1,78 @@
+table.xtrTable {
+    width: auto!important;
+    border-spacing: 0!important;
+    border:  .2em solid rgba(200,200,200, 0.70);
+    border-radius: .5em!important;  
+    margin: auto!important; 
+}
+table.xtrTable tr:nth-of-type(odd) {
+    background-color: #f7f7f7!important
+}
+
+table.xtrTable tr:nth-of-type(even) {
+    background-color: #fff!important
+}
+
+table.xtrTable tr td.almostZeroPadding,
+table.xtrTable tr th.almostZeroPadding {
+    padding: 0.3rem !important;
+}
+table.xtrTable tr td:not(.almostZeroPadding),
+table.xtrTable tr th:not(.almostZeroPadding) {
+    
+    padding: .6em!important;
+
+    text-align: center;
+
+}
+table.xtrTable tr:first-child td:first-child,
+table.xtrTable tr:first-child th:first-child {
+    border-radius: 0px !important;
+    border-radius-top-left: .4em!important
+}
+
+table.xtrTable tr:first-child td:last-child,
+table.xtrTable tr:first-child th:last-child {
+    border-radius-top-right: .4em!important
+}
+
+table.xtrTable tr:last-child td:first-child,
+table.xtrTable tr:last-child th:first-child {
+    border-radius-bottom-left: .4em!important
+}
+
+table.xtrTable tr:last-child td:last-child,
+table.xtrTable tr:last-child th:last-child {
+    border-radius-bottom-right: .4em!important
+}
+
+
+
+table.xtrTable tr td{    
+    border-top: none;
+    border-bottom: none;
+}
+table.xtrTable tr td:not(:first-child):not(.notLeft){    
+    border-left: 2px solid rgba(200,200,200, 0.70)!important;
+}
+table.xtrTable tr:first-child td:not(:last-child) {
+    border-right: none !important;
+}
+
+
+table.xtrTable > thead > tr th:not(.notBottom),
+table.xtrTable > thead > tr td.forceTh:not(.notBottom){
+    border-bottom: 2px solid rgba(200,200,200, 0.70)!important;
+}
+table.xtrTable > tfoot > tr:not(:first-child) th:not(.notTop),
+table.xtrTable > tbody > tr:not(:first-child) th:not(.notTop),
+table.xtrTable > tr:not(:first-child) th:not(.notTop),
+table.xtrTable > tfoot > tr:not(:first-child) td.forceTh:not(.notTop),
+table.xtrTable > tbody > tr:not(:first-child) td.forceTh:not(.notTop),
+table.xtrTable > tr:not(:first-child) td.forceTh:not(.notTop){
+    border-top: 2px solid rgba(200,200,200, 0.70)!important;
+}
+table.xtrTable tr th:not(:first-child):not(.notLeft),
+table.xtrTable tr td.forceTh:not(:first-child):not(.notLeft){
+    border-left: 2px solid rgba(200,200,200, 0.70)!important;
+}
