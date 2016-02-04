@@ -3,6 +3,13 @@ function XtrAble(){
 
 	ables = {};
 
+	this.enable = enable;
+	this.disable = disable;
+	this.isEnable = isEnable;
+	this.click = click;
+
+	return this;
+
 	function disable(id,hide){
 		var element;
 
@@ -46,11 +53,4 @@ function XtrAble(){
 	function click(){
         document.getElementById(id).click();
 	}
-
-	this.enable = enable;
-	this.disable = disable;
-	this.isEnable = isEnable;
-	this.click = click;
-
-	return this;
 }
