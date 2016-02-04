@@ -3,8 +3,8 @@ function XtrSVG(svgObj,whereId){
 	var svg;
 	var tree;
 
-	const exceptions = ["level","tag","parent","index"];
-	const SVGREF = "http://www.w3.org/2000/svg";
+	var exceptions = ["level","tag","parent","index"];
+	var SVGREF = "http://www.w3.org/2000/svg";
 
 	tree = []
 
