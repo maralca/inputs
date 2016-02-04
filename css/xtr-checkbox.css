@@ -1,0 +1,130 @@
+.xtrCheckboxElement input[type="checkbox"] {
+  display: none;
+}
+.xtrCheckboxElement {
+  width: 1em;
+  height: 1em;
+  margin: .25em;
+  display: flex;
+  align-items: center;
+  border-radius: .4em;
+  position: relative;
+  -webkit-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5);
+}
+.xtrCheckboxElement .xtrCheckboxLabel::after {
+  content: '';
+  display: block ;
+  position: absolute ;
+  top: 0 ;
+  bottom: 0 ;
+  left: 0 ;
+  right: 0 ;
+  border-radius: .4em;
+}
+.xtrCheckboxElement:not([disabled]) * {
+  cursor: pointer;
+}
+.xtrCheckboxElement[disabled] * {
+  cursor: normal;
+}
+.xtrCheckboxElement * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.xtrCheckboxElement .xtrCheckboxLabelText {
+  margin-left: 1.2em !important;
+  white-space: nowrap;
+}
+.xtrCheckboxElement[disabled] .xtrCheckboxLabel {
+  cursor: normal;
+}
+.xtrCheckboxElement:not([disabled]) *,
+.xtrCheckboxElement:not([disabled]) + .xtrCheckboxLabelText,
+.xtrCheckboxElement:not([disabled]) {
+  cursor: pointer;
+}
+.xtrCheckboxElement[disabled] .xtrCheckboxLabel::after {
+  border: 2px solid #bdbdbd;
+}
+.xtrCheckboxElement:not([disabled]) .xtrCheckboxLabel::after {
+  border: 2px solid #cccccc;
+}
+.xtrCheckboxElement[disabled] .xtrCheckboxLabel {
+  background: #909090;
+}
+.xtrCheckboxElement:not([disabled]) .xtrCheckboxLabel {
+  background: #7f7f7f;
+}
+.xtrCheckboxElement .xtrCheckboxLabel {
+  border-radius: .4em;
+  -webkit-transition: all .5s ease;
+  -moz-transition: all .5s ease;
+  -o-transition: all .5s ease;
+  -ms-transition: all .5s ease;
+  transition: all .5s ease;
+  position: absolute;
+  top: 0em;
+  left: 0em;
+  bottom: 0em;
+  right: 0em;
+  z-index: 1;
+  -webkit-box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0px 1px 3px rgba(0, 0, 0, 0.5);
+}
+.xtrCheckbox {
+  display: flex;
+  align-items: center;
+}
+.xtrCheckbox-azul input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #7dade8;
+}
+.xtrCheckbox-azulClaro input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #bed6f4;
+}
+.xtrCheckbox-vermelho input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #e88b7d;
+}
+.xtrCheckbox-vermelhoClaro input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #f4c5be;
+}
+.xtrCheckbox-verde input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #7de88f;
+}
+.xtrCheckbox-verdeClaro input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #bef4c7;
+}
+.xtrCheckbox-roxo input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #b27de8;
+}
+.xtrCheckbox-roxoClaro input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #d9bef4;
+}
+.xtrCheckbox-laranja input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #e8b37d;
+}
+.xtrCheckbox-laranjaClaro input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #f4d9be;
+}
+.xtrCheckbox-amarelo input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #e8d67d;
+}
+.xtrCheckbox-amareloClaro input[type=checkbox]:checked + .xtrCheckboxLabel {
+  /*background: #78CA77;*/
+  background: #f4ebbe;
+}
