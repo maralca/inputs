@@ -107,7 +107,7 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
 	        };
 	        extrapolateButtonObj = {
 			    "content": "e",
-			    "data-ponto-extrapolacao": colunaIndex,                               
+			    "data-ponto-extrapolacao": rotuloIndex,                               
 			    "data-clicado":false,
 			    "type": "vermelho",
 			    "class": classExtrapolate,
@@ -120,7 +120,7 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
 		    };
 		    interpolateButtonObj = {
 	            "content": "i",
-	            "data-ponto-interpolacao": colunaIndex+1,
+	            "data-ponto-interpolacao": rotuloIndex+1,
 	            "data-clicado":false,
 	            "type": "azul",
 	            "class":classInterpolate,
@@ -274,23 +274,23 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
         };
         
 	    selectTipostObj = {
-        	value: compositeData.tipo,
-            optionContent:dojoTipos,
-            optionPropContent:"traducao.portuguesBr",
-            optionPropValue:"variavel",
-            id: xtrTable.getId()+"_selectTipo"
+        	"value": compositeData.tipo,
+            "optionContent": dojoTipos,
+            "optionPropContent": "traducao.portuguesBr",
+            "optionPropValue": "variavel",
+            "id": xtrTable.getId()+"_selectTipo"
         };
         selectTemasObj = {
-        	value: compositeData.tema,
-	        optionContent:dojoTemas,
-	        optionPropContent:"alias",
-	        optionPropValue:"variavel",
-	        id: xtrTable.getId()+"_selectTema"
+        	"value": compositeData.tema,
+	        "optionContent": dojoTemas,
+	        "optionPropContent": "alias",
+	        "optionPropValue": "variavel",
+	        "id": xtrTable.getId()+"_selectTema"
 	    };
 	    if(mesclando){
-	    	tipoAtual = SuperModule().getDojoObject(currentTipo,"tipos"); 
-            mesclagens = SuperModule().getDojo("mesclagem");
-            tipos = tipos.filter(function(value){
+	    	dojoTipoAtual = SuperModule().getDojoObject(compositeData.tipo,"tipos"); 
+            dojoMesclagem = SuperModule().getDojo("mesclagem");
+            dojoTipos = dojoTipos.filter(function(value){
                 var show,innerShow;
                 var mesclagem;
                 var mesclagemIndex;
@@ -298,7 +298,7 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
                 var categorias,categoria;
                 var categoriaIndex;
 
-                categorias = tableName.categoria;   
+                categorias = dojoTipoAtual.categoria;   
 
                 show = false;
                 for(categoriaIndex = 0; categorias.length > categoriaIndex; categoriaIndex++){
