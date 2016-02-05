@@ -21,12 +21,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
     //CONSTRUCAO //
     ///////////////
 
-    	xtrTable = new XtrTable(tableId)
+    	xtrTable = new XtrTable(tableId);
 
 	    splits = ['Qtd de','Qtd'];
 
 	    rotulos = compositeData.rotulos; 
 	    series = compositeData.series;
+
+	    organize();
 
 	    mesclando = XtrGraficoUtil.isset(mesclando) ? mesclando : false;
 
@@ -40,6 +42,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classGroupButtons = "xtrGrupoButoes inline flexbox justify-center";
 	    classSelects = "xtrGrupoButoes inline";
 	    classButtons = "xtrGrupoButoes inline espacado flexbox justify-center";
+	    classInconsistenciaLegend = "xtrAlert-amarelo";
+	    classInterpolateLegend = "xtrAlert-azul";
+	    classExtrapolateLegend = "xtrAlert-vermelho";
 
 	    widthColumn = 100/(chunkSize+1) + "%";
 	    widthColumnTitle = 100/(chunkSize+1) + "%";
@@ -50,23 +55,21 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    this.restante=restante;
 	    this.selects=selects;
 	    this.butoes=butoes;
+	    this.make=make;
 
 	    return this;
 
 	/////////////////////
 	//METODOS PROPRIOS //
 	/////////////////////
-		function interpolateAction(tableId,context,compositeData){
-
-            xtrAble.disable('pontosInterpolacao');
+		function interpolateAction(tableId,context){
 
             var alvo = context.getAttribute("data-ponto-interpolacao");
-            var pontos = document.getElementById(tableId+"_pontosInterpolacao").value;
             var rotulos = compositeData.rotulos;                
 
             for (var serieIndex = 0; serieIndex < compositeData.series.length; serieIndex++){
                 
-                var newPoint = XtrNumerico.interpolate(compositeData,serieIndex,alvo,pontos);                    
+                var newPoint = XtrNumerico.interpolate(compositeData,serieIndex,alvo,3);                    
                 var valores = compositeData.series[serieIndex].dados;
                 if(alvo-1 >= 0){
                     var inconsistencia = valores[alvo-1];
@@ -78,15 +81,15 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                 var auxRotulo1 = rotulos[alvo];
                 var auxRotulo2 = rotulos[alvo-1];
                 
-                var hasIncoSerie = hasInObj(compositeData.incosistencias,'serieIndex',serieIndex);
-                var hasIncoRotulo1 = hasInObj(compositeData.incosistencias,'rotulo',auxRotulo1);
-                var hasIncoRotulo2 = hasInObj(compositeData.incosistencias,'rotulo',auxRotulo2);
+                var hasIncoSerie = XtrGraficoUtil.hasInObj(compositeData.inconsistencias,'serieIndex',serieIndex);
+                var hasIncoRotulo1 = XtrGraficoUtil.hasInObj(compositeData.inconsistencias,'rotulo',auxRotulo1);
+                var hasIncoRotulo2 = XtrGraficoUtil.hasInObj(compositeData.inconsistencias,'rotulo',auxRotulo2);
 
                 var incoAcumulada = hasIncoSerie && (hasIncoRotulo1 || hasIncoRotulo2);
 
                 if(newPoint.y < 0 || incoAcumulada){
                     newPoint.y = inconsistencia;
-                    compositeData.incosistencias.push({
+                    compositeData.inconsistencias.push({
                         serieIndex: serieIndex,
                         rotulo: newPoint.x,
                     });
@@ -97,61 +100,64 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
             if(newPoint)
                 compositeData.rotulos.splice(alvo,0,newPoint.x); 
 
-            nowYouSeeMeMore(context,tableId);
-
-            
-            function hasInObj(array,prop,needle){
-                for (var index = 0; index < array.length; index++) {
-                    var obj = array[index];
-                    if(obj[prop] == needle)
-                        return true;
-                }
-                return false;
-            }
+            nowYouSeeMeMore(context,tableId);                     
         }
-		function extrapolateAction(tableId,context,compositeData){
+		function extrapolateAction(tableId,context){
 
-        xtrAble.disable('pontosInterpolacao');
+	        var alvo = context.getAttribute("data-ponto-extrapolacao");
+	        var rotulos = compositeData.rotulos;
 
-        var alvo = context.getAttribute("data-ponto-extrapolacao");
-        var pontos = document.getElementById(tableId+"_pontosInterpolacao").value;
-        var rotulos = compositeData.rotulos;
+	        var inconsistencias,inconsistencia;
+	        var incosistenciaAcumulada;
+	        var incosistenciaNaSerie;
+	        var incosistenciaNoRotulo;
 
-        for (var serieIndex = 0; serieIndex < compositeData.series.length; serieIndex++){
-            var newPoint = XtrNumerico.extrapolate(compositeData,serieIndex,alvo,pontos);                    
-            var valores = compositeData.series[serieIndex].dados; 
+	        var series,serie;
+	        var serie;
 
-            var inconsistencia = valores[alvo];
+	        var valores,valor;
+	        var novoPonto;
 
-            var auxRotulo = rotulos[alvo];
-            function hasInObj(array,prop,needle){
-                for (var index = 0; index < array.length; index++) {
-                    var obj = array[index];
-                    if(obj[prop] == needle)
-                        return true;
-                }
-                return false;
-            }
-            var hasIncoSerie = hasInObj(compositeData.incosistencias,'serieIndex',serieIndex);
-            var hasIncoRotulo = hasInObj(compositeData.incosistencias,'rotulo',auxRotulo);
+	        var polados;
 
-            var incoAcumulada = hasIncoSerie && hasIncoRotulo;
-            if(newPoint.y < 0 || incoAcumulada){
-                newPoint.y = inconsistencia;
-                compositeData.incosistencias.push({
-                    serieIndex: serieIndex,
-                    rotulo: newPoint.x,
-                });
-            }
-            compositeData.series[serieIndex].dados.splice(alvo,0,Math.round(newPoint.y));
-            compositeData.polados.push({type: 'extrapolacao', indexName: newPoint.x});
-        };
-        if(newPoint)
-            compositeData.rotulos.splice(alvo,0,newPoint.x); 
+	        var rotulos,rotulo;
 
-        nowYouSeeMeMore(context,tableId);
+	        rotulos = compositeData.rotulos;
+	        inconsistencias = compositeData.inconsistencias;
+	        console.log(compositeData);
+	        series = compositeData.series;
+	        polados = compositeData.polados;
+
+	        for(serieIndex = 0; series.length > serieIndex; serieIndex++){
+
+	            novoPonto = XtrNumerico.extrapolate(compositeData,serieIndex,alvo,3);   
+
+	            serie = series[serieIndex];                
+	            valores = serie.dados; 
+
+	            inconsistencia = valores[alvo];
+	            rotulo = rotulos[alvo];
+
+	            incosistenciaNaSerie = XtrGraficoUtil.hasInObj(inconsistencias,'serie',serieIndex);
+	            incosistenciaNoRotulo = XtrGraficoUtil.hasInObj(inconsistencias,'rotulo',rotulo);
+
+	            incosistenciaAcumulada = incosistenciaNaSerie && incosistenciaNoRotulo;
+	            if(novoPonto.y < 0 || incosistenciaAcumulada){
+	                novoPonto.y = inconsistencia;
+	                compositeData.inconsistencias.push({
+	                    serie: serieIndex,
+	                    rotulo: novoPonto.x
+	                });
+	            }
+	           	valores.splice(alvo,0,Math.round(novoPonto.y));
+	            polados.push({type: 'extrapolacao', indexName: novoPonto.x});
+	        };
+	        if(novoPonto)
+	            rotulos.splice(alvo,0,novoPonto.x); 
+
+	        nowYouSeeMeMore(context,tableId);
 	    }
-	    function selectorAction(xtrTable,acao,context,classDefault){
+	    function selectorAction(acao,context,classDefault){
 	        var clicado = context.getAttr("data-clicado",true);
 
 	        context.changeAttr("data-clicado",!clicado);
@@ -187,10 +193,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            }
 	        );
 	    }
-	    function generateAction(xtrTable,isActive,mensage,mesclar){
+	    function generateAction(isActive,mensage,mesclar){
 	        var tds;
 	       
-	        var compilado = makeSelectedCompositeData(xtrTable,isActive,mesclar);
+	        var compilado = makeSelectedCompositeData(isActive,mesclar);
 	        if(!compilado){
 	            console.warn(mensage);
 	            alert(mensage);
@@ -213,7 +219,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            });
 	        }
 	    }
-	    function makeSelectedCompositeData(xtrTable,isActive,mesclar){
+	    function makeSelectedCompositeData(isActive,mesclar){
 
 	        var colunas,coluna;
 	        var colunaIndex;
@@ -298,6 +304,52 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        }
 	        return compositeData;
 	    }
+        function getColumnIndexByRotulo(rotulo){
+            var divs = document.querySelectorAll("thead div");
+            var found = false;
+            var dadoIndex = false;
+            for (var divIndex = 0; divIndex < divs.length && !found; divIndex++) {
+                var div = divs[divIndex];
+                if(div.textContent == rotulo){
+                    dadoIndex = div.parentNode.parentNode.getAttribute("data-colunaIndex");
+                    found = true;
+                }
+            };
+            return dadoIndex;
+        } 
+        function organize(){
+        	if(compositeData.dado != "cronologica")
+        		return;
+
+        	var series,serie;
+
+        	var valores;
+        	var formatados;
+
+        	var rotulos;
+        	var order,cloneOrder;
+
+        	rotulos = compositeData.rotulos;
+        	series = compositeData.series;
+
+        	order = [];
+        	rotulos.sort(function(a,b){
+        		order.push(b > a);
+        		return b > a;
+        	});
+        	cloneOrder = XtrGraficoUtil.clone(order);
+        	for(serieIndex = 0; series.length > serieIndex; serieIndex++){
+        		serie = series[serieIndex];
+        		valores = serie.dados;
+        		formatados = serie.dadosFormatados;
+        		valores.sort(function(){
+        			return order.unshift();
+        		});
+        		formatados.sort(function(){
+        			return formatados.unshift();
+        		});
+        	}
+        }
 	//////////////////////
 	//METODOS DE CLASSE //
 	//////////////////////
@@ -361,7 +413,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		            "addEventListener":{
 		                "event":"click",
 		                "fn": function(context,classDefault){ 
-		                    selectorAction(xtrTable,'coluna',context,classDefault); 
+		                    selectorAction('coluna',context,classDefault); 
 		                }
 		            }
 		        };
@@ -374,7 +426,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				    "addEventListener":{
 				        "type": "click",
 				        "fn": function(context){ 
-				            extrapolateAction(tableId,context,compositeData); 
+				            extrapolateAction(tableId,context); 
 				        }
 				    }
 			    };
@@ -387,7 +439,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		            "addEventListener":{
 		                "type": "click",
 		                "fn": function(context){ 
-		                    interpolateAction(tableId,context,compositeData); 
+		                    interpolateAction(tableId,context); 
 		                }
 		            }
 		        };
@@ -437,7 +489,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		            "addEventListener":{
 		                "event":"click",
 		                "fn": function(context,classDefault){
-		                	selectorAction(xtrTable,'linha',context,classDefault);
+		                	selectorAction('linha',context,classDefault);
 		                }
 		            }
 		        }
@@ -555,8 +607,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    	console.log(compositeDataOnCurrentChart);
 		    	dojoTipoAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tipo,"tipos"); 
 	            dojoFusoes = SuperModule().getDojo("fusoes");
+	            console.log(dojoFusoes);
 	            dojoTipos = dojoTipos.filter(function(value){
-	                var dojoFusoes,dojoFusao;
+	                var dojoFusao;
 	                var dojoFusaoIndex;
 
 	                var show,innerShow;
@@ -614,7 +667,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        "addEventListener":{
 		            "event":"click",
 		            fn: function(){ 
-		                generateAction(xtrTable,false,mesclando,"Pelo menos uma serie deve estar selecionada");
+		                generateAction(false,mesclando,"Pelo menos uma serie deve estar selecionada");
 		            }
 		        }
 		    }
@@ -627,7 +680,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            "addEventListener":{
 	                "event":"click",
 	                "fn": function(){ 
-	                    generateAction(xtrTable,true,mesclando,"Pelo menos umas serie não deve estar selecionada");
+	                    generateAction(true,mesclando,"Pelo menos umas serie não deve estar selecionada");
 	                }
 	            }
 	        }
@@ -637,5 +690,56 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        div.appendChild(XtrButao(butaoNaoSelecionadosObj)._);
 
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
+		}		
+	    function evalInconsistencias(){
+            var inconsistencias = compositeData.inconsistencias;
+            if(inconsistencias){
+                for(var incoIndex = 0; inconsistencias.length > incoIndex; incoIndex++){
+                    var incosistencia = inconsistencias[incoIndex];
+                    var serieIndex = incosistencia.serieIndex;
+                    var rotulo = incosistencia.rotulo;
+                    var dadoIndex = getColumnIndexByRotulo(rotulo);
+                    if(dadoIndex){
+                        var seletor = "td";
+                        seletor += '[data-linhaIndex="'+serieIndex+'"]';
+                        seletor += '[data-colunaIndex="'+dadoIndex+'"]';
+                        var td = document.querySelector(seletor);
+                        if(td){
+                            td.className = classInconsistenciaLegend;
+                        }
+                    }
+                }
+            }
+        }
+        function evalPolados(){
+            var polados = compositeData.polados;
+            if(polados){
+                for (var poladoIndex = 0; poladoIndex < polados.length; poladoIndex++) {
+                    var polado = polados[poladoIndex].indexName;
+                    var dadoIndex = getColumnIndexByRotulo(polado);
+                    var seletor = 'td[data-colunaIndex="'+dadoIndex+'"]';
+                    var tds = document.querySelectorAll(seletor);
+                    for(var tdIndex = 0; tds.length > tdIndex; tdIndex++){
+                        var td = tds[tdIndex];
+                        var tipo =  polados[poladoIndex].type;
+                        if(tipo == "interpolacao")
+                            td.className = classInterpolateLegend;
+                        else
+                            td.className = classExtrapolateLegend;
+                    }
+                };
+            }
+        }
+		function make(evaluate){
+			paginadores();
+			titulos();
+			conteudo();
+			restante();
+			selects();
+			butoes();
+			if(XtrGraficoUtil.isset(evaluate)){
+				evalInconsistencias();
+				evalPolados();
+			}
 		}
 }
