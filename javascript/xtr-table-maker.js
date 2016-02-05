@@ -56,6 +56,59 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	/////////////////////
 	//METODOS PROPRIOS //
 	/////////////////////
+		function interpolateAction(tableId,context,compositeData){
+
+            xtrAble.disable('pontosInterpolacao');
+
+            var alvo = context.getAttribute("data-ponto-interpolacao");
+            var pontos = document.getElementById(tableId+"_pontosInterpolacao").value;
+            var rotulos = compositeData.rotulos;                
+
+            for (var serieIndex = 0; serieIndex < compositeData.series.length; serieIndex++){
+                
+                var newPoint = XtrNumerico.interpolate(compositeData,serieIndex,alvo,pontos);                    
+                var valores = compositeData.series[serieIndex].dados;
+                if(alvo-1 >= 0){
+                    var inconsistencia = valores[alvo-1];
+                }
+                else{
+                    var inconsistencia = valores[alvo+1];
+                }                  
+
+                var auxRotulo1 = rotulos[alvo];
+                var auxRotulo2 = rotulos[alvo-1];
+                
+                var hasIncoSerie = hasInObj(compositeData.incosistencias,'serieIndex',serieIndex);
+                var hasIncoRotulo1 = hasInObj(compositeData.incosistencias,'rotulo',auxRotulo1);
+                var hasIncoRotulo2 = hasInObj(compositeData.incosistencias,'rotulo',auxRotulo2);
+
+                var incoAcumulada = hasIncoSerie && (hasIncoRotulo1 || hasIncoRotulo2);
+
+                if(newPoint.y < 0 || incoAcumulada){
+                    newPoint.y = inconsistencia;
+                    compositeData.incosistencias.push({
+                        serieIndex: serieIndex,
+                        rotulo: newPoint.x,
+                    });
+                }
+                compositeData.series[serieIndex].dados.splice(alvo,0,Math.round(newPoint.y));
+                compositeData.polados.push({type: 'interpolacao', indexName: newPoint.x});
+            };
+            if(newPoint)
+                compositeData.rotulos.splice(alvo,0,newPoint.x); 
+
+            nowYouSeeMeMore(context,tableId);
+
+            
+            function hasInObj(array,prop,needle){
+                for (var index = 0; index < array.length; index++) {
+                    var obj = array[index];
+                    if(obj[prop] == needle)
+                        return true;
+                }
+                return false;
+            }
+        }
 		function extrapolateAction(tableId,context,compositeData){
 
         xtrAble.disable('pontosInterpolacao');
