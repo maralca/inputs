@@ -10,11 +10,11 @@ table.xtrTable tr td{
     overflow: hidden;
 }
 table.xtrTable tr:nth-of-type(odd) {
-    background-color: #f7f7f7!important
+    background-color: #F7F7F7!important
 }
 
 table.xtrTable tr:nth-of-type(even) {
-    background-color: #fff!important
+    background-color: #FFFFFF!important
 }
 table.xtrTable tr td{
     text-align: center;
@@ -22,10 +22,12 @@ table.xtrTable tr td{
 table.xtrTable tbody tr td:last-child{
     border-right: 2px solid #C5C5C5;
 }
-table.xtrTable thead tr th:not(:first-child){
-    border-bottom: 2px solid #C5C5C5;
+table.xtrTable thead tr th:not(:first-child),
+table.xtrTable thead tr th:first-child:last-child{
+    border-bottom: 2px solid #C5C5C5
 }
-table.xtrTable tfoot tr th:not(:first-child){
+table.xtrTable tfoot tr th:not(:first-child)
+table.xtrTable tfoot tr th:first-child:last-child{
     border-top: 2px solid #C5C5C5;
 }
 table.xtrTable tbody tr th:first-child{

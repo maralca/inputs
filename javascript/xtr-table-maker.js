@@ -40,14 +40,21 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classInterpolate = "";
 	    classPaginador = "flexbox justify-center xtrGrupoButoes dobro arredondado espacado";
 	    classGroupButtons = "xtrGrupoButoes inline flexbox justify-center";
-	    classSelects = "xtrGrupoButoes inline";
+	    classSelects = "xtrGrupoButoes espacado inline";
 	    classButtons = "xtrGrupoButoes inline espacado flexbox justify-center";
 	    classInconsistenciaLegend = "xtrAlert-amarelo";
 	    classInterpolateLegend = "xtrAlert-azul";
 	    classExtrapolateLegend = "xtrAlert-vermelho";
 
+	    styleColumn = {};
+	    styleColumnPaginador = {};
+	    styleColumnGroupButtons = {};
+	    styleColumnTitleRotulo = {}; 
+	    styleColumnTitleSerie = {};
+
 	    widthColumn = 100/(chunkSize+1) + "%";
-	    widthColumnTitle = 100/(chunkSize+1) + "%";
+	    widthColumnTitleRotulo = 100/(chunkSize+1) + "%";
+	    widthColumnTitleSerie = 100/(chunkSize+1) + "%";
 
 	    this.titulos=titulos;
 	    this.paginadores=paginadores;
@@ -90,12 +97,15 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                 if(newPoint.y < 0 || incoAcumulada){
                     newPoint.y = inconsistencia;
                     compositeData.inconsistencias.push({
-                        serieIndex: serieIndex,
-                        rotulo: newPoint.x,
+                        "serie": serieIndex,
+                        "rotulo": newPoint.x,
                     });
                 }
                 compositeData.series[serieIndex].dados.splice(alvo,0,Math.round(newPoint.y));
-                compositeData.polados.push({type: 'interpolacao', indexName: newPoint.x});
+                compositeData.polados.push({
+                	"type": 'interpolacao', 
+                	"value": newPoint.x
+                });
             };
             if(newPoint)
                 compositeData.rotulos.splice(alvo,0,newPoint.x); 
@@ -145,12 +155,15 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            if(novoPonto.y < 0 || incosistenciaAcumulada){
 	                novoPonto.y = inconsistencia;
 	                compositeData.inconsistencias.push({
-	                    serie: serieIndex,
-	                    rotulo: novoPonto.x
+	                    "serie": serieIndex,
+	                    "valor": novoPonto.x
 	                });
 	            }
 	           	valores.splice(alvo,0,Math.round(novoPonto.y));
-	            polados.push({type: 'extrapolacao', indexName: novoPonto.x});
+	            polados.push({
+	            	"type": 'extrapolacao', 
+	            	"value": novoPonto.x
+	            });
 	        };
 	        if(novoPonto)
 	            rotulos.splice(alvo,0,novoPonto.x); 
@@ -304,18 +317,29 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        }
 	        return compositeData;
 	    }
-        function getColumnIndexByRotulo(rotulo){
-            var divs = document.querySelectorAll("thead div");
-            var found = false;
-            var dadoIndex = false;
-            for (var divIndex = 0; divIndex < divs.length && !found; divIndex++) {
-                var div = divs[divIndex];
-                if(div.textContent == rotulo){
-                    dadoIndex = div.parentNode.parentNode.getAttribute("data-colunaIndex");
-                    found = true;
+        function getColumnIndexByRotulo(needle){
+        	var seletores,seletor;
+        	var seletorIndex;
+
+        	var found;
+        	var index;
+
+        	var rotulos,rotulo;
+
+        	rotulos = compositeData.rotulos;
+
+            seletores = xtrTable.getElements("[data-colunaTitulo][data-colunaSeletor]");
+
+            found = false;
+            for(seletorIndex = 0; seletores.length > seletorIndex && !found; seletorIndex++){
+                seletor = seletores[seletorIndex];
+                rotulo = rotulos[seletorIndex];
+                if(rotulo == needle){                  
+                	index = seletor.getAttribute("data-colunaIndex");            
+                    return index;
                 }
             };
-            return dadoIndex;
+            return -1;
         } 
         function organize(){
         	if(compositeData.dado != "cronologica")
@@ -350,19 +374,77 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
         		});
         	}
         }
+
+	    function evalInconsistencias(){
+            var inconsistencias = compositeData.inconsistencias;
+            if(inconsistencias){
+                for(var incoIndex = 0; inconsistencias.length > incoIndex; incoIndex++){
+                    var incosistencia = inconsistencias[incoIndex];
+                    var serieIndex = incosistencia.serieIndex;
+                    var rotulo = incosistencia.rotulo;
+                    var dadoIndex = getColumnIndexByRotulo(rotulo);
+                    if(dadoIndex){
+                        var seletor = "td";
+                        seletor += '[data-linhaIndex="'+serieIndex+'"]';
+                        seletor += '[data-colunaIndex="'+dadoIndex+'"]';
+                        var td = document.querySelector(seletor);
+                        if(td){
+                            td.className = classInconsistenciaLegend;
+                        }
+                    }
+                }
+            }
+        }
+        function evalPolados(){
+            var polados,polado;
+            var polatoType,poladoValue;
+            var poladoIndex;
+
+            var selector;
+
+            var index;
+
+            var tds,td;
+            var tdIndex;
+
+            polados = compositeData.polados;
+            if(polados){
+                for(poladoIndex = 0; poladoIndex < polados.length; poladoIndex++) {
+                    polado = polados[poladoIndex];
+                    poladoValue = polado.value;
+                    poladoType = polado.type;
+
+                    index = getColumnIndexByRotulo(poladoValue);
+
+                    selector = 'tbody > tr > td[data-colunaIndex="'+index+'"]';
+                    tds = xtrTable.getElements(selector);
+                    console.log(index,tds);
+                    for(tdIndex = 0; tds.length > tdIndex; tdIndex++){
+                        td = tds[tdIndex];
+                        if(poladoType == "interpolacao"){
+                            td.className = classInterpolateLegend;
+                   		}
+                        else{
+                            td.className = classExtrapolateLegend;
+                        }
+                    }
+                };
+            }
+        }
 	//////////////////////
 	//METODOS DE CLASSE //
 	//////////////////////
 		function paginadores(){
 
 		    linhaObj = {
-		        index:0,
-		        head:true
+		        "index": 0,
+		        "head": true
 		    };
 		    colunaObj = {
-		    	index:0,
+		    	"index": 0,
 		    	"colspan": 100,
-		    	type:"th"
+		    	"type": "th",
+		    	"style": styleColumnPaginador
 		    };    
 
 		    div = document.createElement("div");
@@ -371,14 +453,15 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    xtrTable.appendIn(linhaObj,colunaObj,div);
 
 		    linhaObj = {
-		        index:series.length+5,
-		        foot: true
+		        "index": series.length+5,
+		        "foot": true
 		    };
 		    colunaObj = {
-		    	index:0,
+		    	"index":0,
 		    	"colspan": 100,
-		    	type:"th",
-		        foot:true
+		    	"type": "th",
+		        "foot": true,
+		        "style": styleColumnPaginador
 		    };    
 
 		    div = document.createElement("div");
@@ -386,15 +469,18 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    div.id = xtrTable.getId()+"_paginasBottom";
 		    xtrTable.appendIn(linhaObj,colunaObj,div);   
 		}
-	    function titulos(){
+	    function titulos(comPolacao){
 
 		    linhaObj = {
-		        index:1,
-		        head:true
+		        "index": 1,
+		        "head": true
 		    };
 		    colunaObj = {
-		    	index:0,
-		    	type:"th"
+		    	"index": 0,
+		    	"type": "th",
+		    	"data-colunaTitulo": true,
+		    	"data-linhaTitulo": true,
+		    	"style": styleColumnGroupButtons
 		    };
 		    xtrTable.appendIn(linhaObj,colunaObj,tableName);
 
@@ -443,16 +529,27 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		                }
 		            }
 		        };
-
-		        div.appendChild(XtrButao(extrapolateButtonObj)._);
-		        div.appendChild(XtrButao(selectButtonObj)._);
-		        div.appendChild(XtrButao(interpolateButtonObj)._);
+		        if(comPolacao){
+		        	if(rotuloIndex == 0){
+		       			div.appendChild(XtrButao(extrapolateButtonObj)._);
+	       			}     		
+			        div.appendChild(XtrButao(selectButtonObj)._);
+			        if(rotulos.length > rotuloIndex+1){
+    			        div.appendChild(XtrButao(interpolateButtonObj)._);
+    			    }
+		        }
+		        else{
+		        	div = XtrButao(selectButtonObj)._;
+		        }
 		        
 		        colunaObj = {
-		            index:rotuloIndex+1,
-		            type:"th",
+		            "index":rotuloIndex+1,
+		            "type":"th",
 		            "data-colunaIndex": rotuloIndex,
-		            "width": widthColumnTitle,
+		            "width": widthColumnTitleRotulo,
+		            "style": styleColumnTitleRotulo,
+		    		"data-colunaTitulo": true,
+		    		"data-colunaSeletor": true,
 		            "data-linhaIndex": 0,
 		            "data-colunaAtiva": true,
 		            "data-linhaAtiva": true
@@ -464,7 +561,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			colunaObj = {
 				"index":0,
 				"type": "th",
-				"width": widthColumnTitle
+	    		"data-linhaTitulo": true,
+	    		"data-linhaSeletor": true,
+				"width": widthColumnTitleSerie,
+				"style": styleColumnTitleSerie
 			};
 
 			for(serieIndex = 0; series.length > serieIndex; serieIndex++){
@@ -499,8 +599,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		}
 		function conteudo(){
 		    colunaObj = {
-		        index:0,
-		        type:"th"
+		        "index":0,
+		        "type":"th",
+		        "style": styleColumn
 		    };
 		    for(serieIndex = 0; series.length > serieIndex; serieIndex++){
 		        serie = series[serieIndex];
@@ -580,13 +681,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        }); 
 
 	        linhaObj = {
-	        	index: series.length + 3,
-	        	foot: true
+	        	"index": series.length + 3,
+	        	"foot": true
 	        };
 	        colunaObj = {
-	        	index: 0,
-	        	colspan: 999,
-	        	type: "th"
+	        	"index": 0,
+	        	"colspan": 999,
+	        	"type": "th"
 	        };
 	        
 		    selectTipostObj = {
@@ -662,11 +763,11 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        "content": "Selecionados",
 		        "type": "inverse",
 	            "style": {
-	            	width: "50%"
+	            	"width": "50%"
 	            },
 		        "addEventListener":{
 		            "event":"click",
-		            fn: function(){ 
+		            "fn": function(){ 
 		                generateAction(false,mesclando,"Pelo menos uma serie deve estar selecionada");
 		            }
 		        }
@@ -690,49 +791,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        div.appendChild(XtrButao(butaoNaoSelecionadosObj)._);
 
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
-		}		
-	    function evalInconsistencias(){
-            var inconsistencias = compositeData.inconsistencias;
-            if(inconsistencias){
-                for(var incoIndex = 0; inconsistencias.length > incoIndex; incoIndex++){
-                    var incosistencia = inconsistencias[incoIndex];
-                    var serieIndex = incosistencia.serieIndex;
-                    var rotulo = incosistencia.rotulo;
-                    var dadoIndex = getColumnIndexByRotulo(rotulo);
-                    if(dadoIndex){
-                        var seletor = "td";
-                        seletor += '[data-linhaIndex="'+serieIndex+'"]';
-                        seletor += '[data-colunaIndex="'+dadoIndex+'"]';
-                        var td = document.querySelector(seletor);
-                        if(td){
-                            td.className = classInconsistenciaLegend;
-                        }
-                    }
-                }
-            }
-        }
-        function evalPolados(){
-            var polados = compositeData.polados;
-            if(polados){
-                for (var poladoIndex = 0; poladoIndex < polados.length; poladoIndex++) {
-                    var polado = polados[poladoIndex].indexName;
-                    var dadoIndex = getColumnIndexByRotulo(polado);
-                    var seletor = 'td[data-colunaIndex="'+dadoIndex+'"]';
-                    var tds = document.querySelectorAll(seletor);
-                    for(var tdIndex = 0; tds.length > tdIndex; tdIndex++){
-                        var td = tds[tdIndex];
-                        var tipo =  polados[poladoIndex].type;
-                        if(tipo == "interpolacao")
-                            td.className = classInterpolateLegend;
-                        else
-                            td.className = classExtrapolateLegend;
-                    }
-                };
-            }
-        }
+		}
 		function make(evaluate){
+			titulos(true);
 			paginadores();
-			titulos();
 			conteudo();
 			restante();
 			selects();
