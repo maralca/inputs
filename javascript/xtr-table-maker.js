@@ -247,9 +247,13 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
 		var dojoTipos;
 		var dojoTemas;
 
+		var compositeDataOnCurrentChart;
+
 		dojo = SuperModule(Object).getDojo();
         dojoTipos = dojo.tipos;
         dojoTemas = dojo.temas;
+
+	    compositeDataOnCurrentChart = compositeDataHandler.current();
 
         dojoTipos = dojoTipos.filter(function(item){
             if(item.ativo)
@@ -288,12 +292,14 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
 	        "id": xtrTable.getId()+"_selectTema"
 	    };
 	    if(mesclando){
-	    	dojoTipoAtual = SuperModule().getDojoObject(compositeData.tipo,"tipos"); 
-            dojoMesclagem = SuperModule().getDojo("mesclagem");
+	    	console.log(compositeDataOnCurrentChart);
+	    	dojoTipoAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tipo,"tipos"); 
+            dojoFusoes = SuperModule().getDojo("fusoes");
             dojoTipos = dojoTipos.filter(function(value){
+                var dojoFusoes,dojoFusao;
+                var dojoFusaoIndex;
+
                 var show,innerShow;
-                var mesclagem;
-                var mesclagemIndex;
 
                 var categorias,categoria;
                 var categoriaIndex;
@@ -303,14 +309,14 @@ function TableMaker(xtrTable,compositeData,chunkSize,mesclando){
                 show = false;
                 for(categoriaIndex = 0; categorias.length > categoriaIndex; categoriaIndex++){
                     categoria = categorias[categoriaIndex]; 
-                    for(mesclagemIndex = 0; mesclagens.length > mesclagemIndex; mesclagemIndex++){
-                        mesclagem = mesclagens[mesclagemIndex];
+                    for(dojoFusaoIndex = 0; dojoFusoes.length > dojoFusaoIndex; dojoFusaoIndex++){
+                        dojoFusao = dojoFusoes[dojoFusaoIndex];
                         innerShow = false;
-                        if(mesclagem.de.indexOf(categoria) >= 0){
-                            innerShow = innerShow || mesclagem.para.indexOf(value.variavel) >= 0;
-                            innerShow = innerShow || mesclagem.para.indexOf("all") >= 0;
-                            if(mesclagem.exceto.indexOf(value.variavel) >= 0
-                                || mesclagem.exceto.indexOf("all") >= 0){
+                        if(dojoFusao.de.indexOf(categoria) >= 0){
+                            innerShow = innerShow || dojoFusao.para.indexOf(value.variavel) >= 0;
+                            innerShow = innerShow || dojoFusao.para.indexOf("all") >= 0;
+                            if(dojoFusao.exceto.indexOf(value.variavel) >= 0
+                            || dojoFusao.exceto.indexOf("all") >= 0){
                                 innerShow = !innerShow;
                             }
                         }
