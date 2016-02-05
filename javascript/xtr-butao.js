@@ -2,7 +2,7 @@ function XtrButao(xtrButaoObj){
 	var butaoType = "xtrButao-default";
 	var butaoContent = "";
 
-	var exceptions = ["content","type","addEventListener"];
+	var exceptions = ["content","type","addEventListener","class"];
 
 	butao = document.createElement("div");
 
@@ -76,13 +76,15 @@ function XtrButao(xtrButaoObj){
 			if(XtrGraficoUtil.isset(objAttrs.addEventListener)){
 				var propValue=objAttrs.addEventListener;
 				var evento = "click";
-				var callback = function(t,bt){console.log(t,bt)};
+				var callback = function(t,bt){
+					console.log(t,bt)
+				};
 
 				if(XtrGraficoUtil.isset(propValue.event))
 					evento = propValue.event;
 
-				if(XtrGraficoUtil.isset(propValue.func))
-					callback = propValue.func;
+				if(XtrGraficoUtil.isset(propValue.fn))
+					callback = propValue.fn;
 
 				newTarget.addEventListener(evento,function(){
 					this.getAttr = function(x,y){
@@ -97,9 +99,13 @@ function XtrButao(xtrButaoObj){
 					callback(this,butaoType);
 				});
 			}
+			if(XtrGraficoUtil.isset(objAttrs["class"])){
+				var className = objAttrs['class'];
+				butao.className = butao.className +" "+ className;
+			}
 		}
 		return newTarget;
 	}
-	this.node = butao;
+	this._ = butao;
 	return this;
 }

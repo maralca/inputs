@@ -1,9 +1,13 @@
 table.xtrTable {
-    width: auto!important;
-    border-spacing: 0!important;
-    border:  .2em solid rgba(200,200,200, 0.70);
-    border-radius: .5em!important;  
-    margin: auto!important; 
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0px;
+    padding: 0px;
+    border-style: none;
+}
+table.xtrTable tr th,
+table.xtrTable tr td{
+    overflow: hidden;
 }
 table.xtrTable tr:nth-of-type(odd) {
     background-color: #f7f7f7!important
@@ -12,7 +16,25 @@ table.xtrTable tr:nth-of-type(odd) {
 table.xtrTable tr:nth-of-type(even) {
     background-color: #fff!important
 }
-
+table.xtrTable tr td{
+    text-align: center;
+}
+table.xtrTable tbody tr td:last-child{
+    border-right: 2px solid #C5C5C5;
+}
+table.xtrTable thead tr th:not(:first-child){
+    border-bottom: 2px solid #C5C5C5;
+}
+table.xtrTable tfoot tr th:not(:first-child){
+    border-top: 2px solid #C5C5C5;
+}
+table.xtrTable tbody tr th:first-child{
+     border-right: 2px solid #C5C5C5;
+}
+table.xtrTable tbody tr:last-child{
+    border-bottom: 2px solid #C5C5C5;
+}
+/*
 table.xtrTable tr td.almostZeroPadding,
 table.xtrTable tr th.almostZeroPadding {
     padding: 0.3rem !important;
@@ -75,4 +97,4 @@ table.xtrTable > tr:not(:first-child) td.forceTh:not(.notTop){
 table.xtrTable tr th:not(:first-child):not(.notLeft),
 table.xtrTable tr td.forceTh:not(:first-child):not(.notLeft){
     border-left: 2px solid rgba(200,200,200, 0.70)!important;
-}
+}*/
