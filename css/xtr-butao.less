@@ -4,22 +4,32 @@
 @fonte: hsl(@HUE,@SAT,100%);
 
 .xtrGrupoButoes{
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+
 	&.desigualmente.distribuido{
 		.xtrButao.principal{
-			flex-grow: 10;
+			-webkit-flex-grow: 10;
+      				flex-grow: 10;
 		}
 		.xtrButao:not(.principal){
-			flex-grow: 1;
+			-webkit-flex-grow: 1;
+      				flex-grow: 1;
 		}
 	}
 	&.linear{
-		display: flex;
-		flex-direction: row;
+		-webkit-flex-direction: row;
 	}
 	&.igualmente.distribuido{ 
 		.xtrButao,.xtrSelect{
-	   		flex-grow: 1;
-	   		flex-basis: 0;
+	   		-webkit-flex-grow: 1;
+	   				flex-grow: 1;
+	   		-webkit-flex-basis: 0;
+	   				flex-basis: 0;
 		}
 	}
 	&.dobrado{
@@ -28,7 +38,8 @@
 		}
 	}
 	&.centralizado{
-		justify-content: center;
+		-webkit-justify-content: center;
+				justify-content: center;
 	}
 	&.espacado{
 		margin: 0.3em 0.3em;
@@ -71,7 +82,7 @@
 	-webkit-user-select: none !important;
 	-moz-user-select: none !important;
 	-ms-user-select: none !important;
-	user-select: none !important;
+		user-select: none !important;
 
 	background-image: none !important;
 	border: 1px solid transparent !important;
@@ -83,7 +94,7 @@
 	display: flex;
 
 	-webkit-justify-content: center;
-	justify-content: center;
+			justify-content: center;
 }
 .xtrButao.disabled,
 .xtrButao[disabled],
@@ -91,15 +102,17 @@ fieldset[disabled] .xtrButao {
 	pointer-events: none !important;
 	cursor: not-allowed !important;
 	filter: alpha(opacity=65) !important;
+
 	-webkit-box-shadow: none !important;
 	      box-shadow: none !important;
+
 	opacity: .65 !important;
 }
 .xtrButao:focus,
 .xtrButao:active:focus,
 .xtrButao.active:focus {
-	outline: thin dotted !important;
 	outline: 5px auto -webkit-focus-ring-color !important;
+	outline: thin dotted !important;
 	outline-offset: -2px !important;
 }
 .xtrButao:hover,
@@ -111,8 +124,9 @@ fieldset[disabled] .xtrButao {
 .xtrButao.active {
 	background-image: none !important;
 	outline: 0 !important;
+
 	-webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125) !important;
-	        box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125) !important;
+			box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125) !important;
 }
 .butao(@name,@color,@bordaPD,@fontPD,@fontPS){
 	@border: darken(@color, @bordaPD);
