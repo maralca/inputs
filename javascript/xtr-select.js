@@ -2,7 +2,7 @@ function XtrSelect(xtrSelectObj,xtrOptionsObj){
 	var selectType = "xtrSelect-default";
 	var options = [];
 
-	var exceptions = ["optionContent","type","optionPropContent","optionPropValue","addEventListener"];
+	var exceptions = ["optionContent","type","optionPropContent","optionPropValue","addEventListener","title"];
 
 	select = document.createElement("select");
 
@@ -13,6 +13,24 @@ function XtrSelect(xtrSelectObj,xtrOptionsObj){
 			if(xtrSelectObj.type == "none" || xtrSelectObj.type == null){
 				selectType = null;
 			}
+		}
+		if(XtrGraficoUtil.isset(xtrSelectObj.title)){
+			var title = xtrSelectObj.title;
+			var option = document.createElement("option");
+			option.selected = true;
+			option.disabled = true;
+			option.value = "";
+			option.style.setProperty("background-color","red");
+			option.style.setProperty("color","red");
+			select.addEventListener("change",function(){				
+				this.style.setProperty("background-color","red");
+				this.style.setProperty("color","red");
+			});
+
+			var content = document.createTextNode(title);
+			option.appendChild(content);
+
+			select.appendChild(option);
 		}
 
 		if(XtrGraficoUtil.isset(xtrSelectObj.optionContent)){

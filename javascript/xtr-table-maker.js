@@ -418,7 +418,6 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
                     selector = 'tbody > tr > td[data-colunaIndex="'+index+'"]';
                     tds = xtrTable.getElements(selector);
-                    console.log(index,tds);
                     for(tdIndex = 0; tds.length > tdIndex; tdIndex++){
                         td = tds[tdIndex];
                         if(poladoType == "interpolacao"){
@@ -695,14 +694,16 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            "optionContent": dojoTipos,
 	            "optionPropContent": "traducao.portuguesBr",
 	            "optionPropValue": "variavel",
-	            "id": xtrTable.getId()+"_selectTipo"
+	            "id": xtrTable.getId()+"_selectTipo",
+	            "title": "Tipo de Grafico"
 	        };
 	        selectTemasObj = {
 	        	"value": compositeData.tema,
 		        "optionContent": dojoTemas,
 		        "optionPropContent": "alias",
 		        "optionPropValue": "variavel",
-		        "id": xtrTable.getId()+"_selectTema"
+		        "id": xtrTable.getId()+"_selectTema",
+		        "title": "Tema do Grafico"
 		    };
 		    if(mesclando){
 		    	console.log(compositeDataOnCurrentChart);
