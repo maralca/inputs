@@ -29,7 +29,11 @@ function XtrSelect(xtrSelectObj,xtrOptionsObj){
 			container.appendChild(select);			
 			container.appendChild(labelText);
 			if(ordem == "left"){
+				labelText.className += " left";
 				container.insertBefore(labelText,select);
+			}
+			else{
+				labelText.className += " right";
 			}
 		}
 

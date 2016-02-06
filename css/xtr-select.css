@@ -9,5 +9,11 @@
 	display: -webkit-flex;
 	display: flex;
 }
-.xtrSelectLabel{
+.xtrSelectLabel.left{
+	text-align: right;
+	margin-right: .3em;
+}
+.xtrSelectLabel.right{
+	text-align: left;
+	margin-left: .3em;
 }
