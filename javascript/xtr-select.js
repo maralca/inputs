@@ -1,36 +1,36 @@
 function XtrSelect(xtrSelectObj,xtrOptionsObj){
-	var selectType = "xtrSelect-default";
 	var options = [];
+
+	var container;
+	var labelText;
 
 	var exceptions = ["optionContent","type","optionPropContent","optionPropValue","addEventListener","title"];
 
-	select = document.createElement("select");
+	labelText = document.createElement("label");
+	labelText.setAttribute("class","xtrSelectLabel");
 
+	select = document.createElement("select");
+	select.setAttribute("class","xtrSelectElement");
+
+	container = document.createElement("div");
+	container.setAttribute("class","xtrSelect");
 
 	if(XtrGraficoUtil.isobj(xtrSelectObj)){
 		if(XtrGraficoUtil.isset(xtrSelectObj.type)){
-			selectType = "xtrSelect-"+xtrSelectObj.type;
-			if(xtrSelectObj.type == "none" || xtrSelectObj.type == null){
-				selectType = null;
-			}
 		}
 		if(XtrGraficoUtil.isset(xtrSelectObj.title)){
+			var ordem = XtrGraficoUtil.isset(xtrSelectObj.titleOrder) ? xtrSelectObj.titleOrder : "left";
+
 			var title = xtrSelectObj.title;
-			var option = document.createElement("option");
-			option.selected = true;
-			option.disabled = true;
-			option.value = "";
-			option.style.setProperty("background-color","red");
-			option.style.setProperty("color","red");
-			select.addEventListener("change",function(){				
-				this.style.setProperty("background-color","red");
-				this.style.setProperty("color","red");
-			});
 
-			var content = document.createTextNode(title);
-			option.appendChild(content);
-
-			select.appendChild(option);
+			content = document.createTextNode(title);
+			
+			labelText.appendChild(content);			
+			container.appendChild(select);			
+			container.appendChild(labelText);
+			if(ordem == "left"){
+				container.insertBefore(labelText,select);
+			}
 		}
 
 		if(XtrGraficoUtil.isset(xtrSelectObj.optionContent)){
@@ -86,9 +86,6 @@ function XtrSelect(xtrSelectObj,xtrOptionsObj){
 		select.appendChild(options);
 	}
 
-	if(selectType != null)
-		select.className="xtrSelect "+selectType;
-
 	function setAttrs(target,objAttrs){
 		var newTarget = target;
 		if(XtrGraficoUtil.isobj(objAttrs)){
@@ -121,5 +118,5 @@ function XtrSelect(xtrSelectObj,xtrOptionsObj){
 		return newTarget;
 	}
 
-	return select;
+	return container;
 }

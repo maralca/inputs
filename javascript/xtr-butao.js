@@ -102,6 +102,7 @@ function XtrButao(xtrButaoObj){
 			if(XtrGraficoUtil.isset(objAttrs["class"])){
 				var className = objAttrs['class'];
 				butao.className = butao.className +" "+ className;
+				butaoType += " "+className;
 			}
 		}
 		return newTarget;

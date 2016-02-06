@@ -34,14 +34,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    tableName = mesclando ? "Novo Grafico" : "Adicionar Grafico";
 
-	    classSerie = "fluid";
-	    classRotulo = "";
+	    classSerie = "";
+	    classRotulo = "principal";
 	    classExtrapolate = "";
 	    classInterpolate = "";
-	    classPaginador = "flexbox justify-center xtrGrupoButoes dobro arredondado espacado";
-	    classGroupButtons = "xtrGrupoButoes inline flexbox justify-center";
-	    classSelects = "xtrGrupoButoes espacado inline";
-	    classButtons = "xtrGrupoButoes inline espacado flexbox justify-center";
+	    classPaginador = "xtrGrupoButoes linear centralizado dobrado arredondado espacado";
+	    classGroupButtons = "xtrGrupoButoes linear centralizado desigualmente distribuido";
+	    classSelects = "xtrGrupoButoes linear centralizado espacado igualmente distribuido";
+	    classButtons = "xtrGrupoButoes linear centralizado espacado igualmente distribuido";
 	    classInconsistenciaLegend = "xtrAlert-amarelo";
 	    classInterpolateLegend = "xtrAlert-azul";
 	    classExtrapolateLegend = "xtrAlert-vermelho";
@@ -50,7 +50,12 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    styleColumnPaginador = {};
 	    styleColumnGroupButtons = {};
 	    styleColumnTitleRotulo = {}; 
-	    styleColumnTitleSerie = {};
+	    styleColumnTitleSerie = {
+	    	"text-align": "right"
+	    };
+
+	    hasDividerOnSelect = true;
+	    hasDividerOnButtons = false;
 
 	    widthColumn = 100/(chunkSize+1) + "%";
 	    widthColumnTitleRotulo = 100/(chunkSize+1) + "%";
@@ -98,7 +103,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                     newPoint.y = inconsistencia;
                     compositeData.inconsistencias.push({
                         "serie": serieIndex,
-                        "rotulo": newPoint.x,
+                        "rotulo": newPoint.x
                     });
                 }
                 compositeData.series[serieIndex].dados.splice(alvo,0,Math.round(newPoint.y));
@@ -685,7 +690,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        };
 	        colunaObj = {
 	        	"index": 0,
-	        	"colspan": 999,
+	        	"colspan": 222,
 	        	"type": "th"
 	        };
 	        
@@ -695,7 +700,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            "optionPropContent": "traducao.portuguesBr",
 	            "optionPropValue": "variavel",
 	            "id": xtrTable.getId()+"_selectTipo",
-	            "title": "Tipo de Grafico"
+	            "title": "Tipo de Grafico",
+	            "titleOrder": "left"
 	        };
 	        selectTemasObj = {
 	        	"value": compositeData.tema,
@@ -703,7 +709,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        "optionPropContent": "alias",
 		        "optionPropValue": "variavel",
 		        "id": xtrTable.getId()+"_selectTema",
-		        "title": "Tema do Grafico"
+		        "title": "Tema do Grafico",
+		        "titleOrder": "right"
 		    };
 		    if(mesclando){
 		    	console.log(compositeDataOnCurrentChart);
@@ -742,9 +749,18 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            });
 		    }
 
+		    
+
 		    div = document.createElement("div");
 		    div.className = classSelects;
 		    div.appendChild(XtrSelect(selectTipostObj));
+
+		    if(hasDividerOnSelect){
+			    divider = document.createElement("div");
+			    divider.className = "divider";
+		    	div.appendChild(divider);
+		    }
+
 		    div.appendChild(XtrSelect(selectTemasObj));
 
 		    xtrTable.appendIn(linhaObj,colunaObj,div);
@@ -756,16 +772,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			}
 			colunaObj = {
 				"index": 0,
-				"colspan": 999,
+				"colspan": 222,
 				"type": "th"
 			}
 
 			butaoSelecionadsObj = {
 		        "content": "Selecionados",
 		        "type": "inverse",
-	            "style": {
-	            	"width": "50%"
-	            },
 		        "addEventListener":{
 		            "event":"click",
 		            "fn": function(){ 
@@ -776,9 +789,6 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    butaoNaoSelecionadosObj = {
 	            "content": "Não selecionados",
 	            "type": "default",
-	            "style": {
-	            	"width": "50%"
-	            },
 	            "addEventListener":{
 	                "event":"click",
 	                "fn": function(){ 
@@ -789,6 +799,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        div = document.createElement("div");
 	        div.className = classButtons;
 	        div.appendChild(XtrButao(butaoSelecionadsObj)._);
+
+	        if(hasDividerOnButtons){
+			    divider = document.createElement("div");
+			    divider.className = "divider";
+		    	div.appendChild(divider);
+		    }
+
 	        div.appendChild(XtrButao(butaoNaoSelecionadosObj)._);
 
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
