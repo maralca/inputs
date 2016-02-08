@@ -32,16 +32,16 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    mesclando = XtrGraficoUtil.isset(mesclando) ? mesclando : false;
 
-	    tableName = mesclando ? "Novo Grafico" : "Adicionar Grafico";
+	    tableName = mesclando ? "Mesclar Grafico" : "Novo Grafico";
 
 	    classSerie = "";
 	    classRotulo = "principal";
-	    classExtrapolate = "";
-	    classInterpolate = "";
+	    classExtrapolate = "tamanho metade";
+	    classInterpolate = "tamanho metade";
 	    classPaginador = "xtrGrupoButoes linear centralizado dobrado arredondado espacado";
 	    classGroupButtons = "xtrGrupoButoes linear centralizado desigualmente distribuido";
 	    classSelects = "xtrGrupoButoes linear centralizado espacado igualmente distribuido";
-	    classButtons = "xtrGrupoButoes linear centralizado espacado igualmente distribuido";
+	    classButtons = "xtrGrupoButoes linear centralizado espacado igualmente distribuido arredondado";
 	    classInconsistenciaLegend = "xtrAlert-amarelo";
 	    classInterpolateLegend = "xtrAlert-azul";
 	    classExtrapolateLegend = "xtrAlert-vermelho";
@@ -53,6 +53,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    styleColumnTitleSerie = {
 	    	"text-align": "right"
 	    };
+	    styleSelects = {
+
+	    }
 
 	    hasDividerOnSelect = true;
 	    hasDividerOnButtons = false;
@@ -113,7 +116,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                 });
             };
             if(newPoint)
-                compositeData.rotulos.splice(alvo,0,newPoint.x); 
+                compositeData.rotulos.splice(alvo,0,newPoint.x.toString()); 
 
             nowYouSeeMeMore(context,tableId);                     
         }
@@ -211,31 +214,29 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            }
 	        );
 	    }
-	    function generateAction(isActive,mensage,mesclar){
-	        var tds;
-	       
-	        var compilado = makeSelectedCompositeData(isActive,mesclar);
-	        if(!compilado){
-	            console.warn(mensage);
-	            alert(mensage);
-	            return;
-	        }
+	    function generateAction(isActive,mesclar){
+	       var selectedCompositeData
 
-	        sideBar.desactiveAll();
+	        selectedCompositeData = makeSelectedCompositeData(isActive,mesclar);
+	        
+	        if(selectedCompositeData){           
 
-	        if(mesclar){
-	            compositeDataHandler.save(compilado);
-	            xtrTab.changeActiveAndCall('_xtr_tab_grafico_principal', function(){
-	                mergeChartData(compositeDataHandler.load());                            
-	            });
+		        sideBar.desactiveAll();
 
-	        }
-	        else{
-	            compositeDataHandler.override(compilado)
-	            xtrTab.changeActiveAndCall('_xtr_tab_grafico_principal', function(){                      
-	                generateWithLoading(compositeDataHandler.current());
-	            });
-	        }
+		        if(mesclar){
+		            compositeDataHandler.save(selectedCompositeData);
+		            xtrTab.changeActiveAndCall('_xtr_tab_grafico_principal', function(){
+		                mergeChartData(compositeDataHandler.load());                            
+		            });
+
+		        }
+		        else{
+		            compositeDataHandler.override(selectedCompositeData)
+		            xtrTab.changeActiveAndCall('_xtr_tab_grafico_principal', function(){                      
+		                generateWithLoading(compositeDataHandler.current());
+		            });
+		        }
+		    }
 	    }
 	    function makeSelectedCompositeData(isActive,mesclar){
 
@@ -255,6 +256,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	        var selectTema,selectTipo;
 
+	        var msgerro,msg;
+
 	        compositeData = dataHandler.search("tabela",0);
 	        compositeData = XtrGraficoUtil.clone(compositeData);
 	        series = compositeData.series;
@@ -269,12 +272,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        colunas = xtrTable.getElements('tbody tr:first-child [data-colunaAtiva="'+isActive+'"]');
 	        colunasRef = xtrTable.getElements('tbody tr:first-child [data-colunaAtiva]');
 	        var alguma = colunasRef.length != colunas.length;
+	        console.log(colunasRef.length,colunas.length);
 	        for(colunaIndex = 0; colunas.length > colunaIndex && alguma; colunaIndex++){
 	            coluna = colunas[colunaIndex];
 	            removeColumnIndex = coluna.getAttribute("data-colunaIndex");
-	            removeColumnIndexes.push(removeColumnIndex);
+	            if(removeColumnIndexes.indexOf(removeColumnIndex) < 0){
+	            	removeColumnIndexes.push(removeColumnIndex);
+	            }
 	        };
-
 	        linhas = xtrTable.getElements('tbody tr td:first-of-type[data-linhaAtiva="'+isActive+'"]');
 	        for(linhaIndex = 0; linhas.length > linhaIndex; linhaIndex++){
 	            linha = linhas[linhaIndex];
@@ -299,26 +304,79 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                dados = serie.dados;
 	                formatados = serie.dadosFormatados;
 
-	                dados.splice(removeLineIndex,1); 
-	                formatados.splice(removeLineIndex,1); 
+	                dados.splice(removeColumnIndex,1); 
+	                formatados.splice(removeColumnIndex,1); 
 	            };
-	            rotulo = rotulos.splice(removeLineIndex,1);
+	            rotulo = rotulos.splice(removeColumnIndex,1);
 	            console.info("=>","(",indexSeeker+1,")",rotulo);
 	        };
-
 	        if(!mesclar){
-	            selectTema = document.getElementById(xtrTable.getId()+"_selectTema");
+	            selectTema = document.getElementById("input_"+xtrTable.getId()+"_tema");
 	            compositeData.tema = selectTema.value;
 	        }
 
-	        selectTipo = document.getElementById(xtrTable.getId()+"_selectTipo");
+	        selectTipo = document.getElementById("input_"+xtrTable.getId()+"_tipo");
+
+	        msgerro = "";
 
 	        compositeData.tipo = selectTipo.value;
-	        var notUse = rotulos.length < 1 || series.length < 1;
-	        notUse = ["markersonly",""].indexOf(compositeData.tipo) >= 0 && series.length <=1 || notUse;
+	        if(rotulos.length < 1){
 
-	        if(notUse){
-	            return;
+	        	msg = isActive ? "deve estar selecionado" : "não deve estar selecionado";
+	        	msg = "Pelo menos um ponto " + msg;
+	        	console.log(msg);
+
+				msgerro += msg;
+				msgerro += "\n";
+	    	}
+	        if(series.length < 1){
+
+	        	msg = isActive ? "deve estar selecionada" : "não deve estar selecionada";
+	        	msg = "Pelo menos uma serie " + msg;
+	        	console.log(msg);
+
+				msgerro += msg;
+				msgerro += "\n";
+	        }
+	        if("markersonly" == compositeData.tipo && series.length < 2){
+
+	        	msg = "Grafico de Disperão deve ter pelo menos duas series selecionadas";
+	        	console.log(msg);
+
+				msgerro += msg;
+				msgerro += "\n";       		
+	       	}
+	       	if("bubles" == compositeData.tipo && series.length < 2){
+
+	       		msg = "Grafico de Bolhas deve ter pelo menos duas series selecionadas";
+	       		console.log(msg);
+
+	       		msgerro += msg;
+	       		msgerro += "\n";       		
+	       	}
+	       	if(["lines","stackedlines"].indexOf(compositeData.tipo) >= 0 && rotulos.length < 2){
+	       		msg = "Grafico de Linhas deve ter pelo menos dois pontos selecionados";
+	       		console.log(msg);
+
+	       		msgerro += msg;
+	       		msgerro += "\n";
+	       	}
+	        if(compositeData.tipo == ""){
+
+	        	msg = "Algum tipo deve ser selecionado";
+	        	console.log(msg);
+
+	        	msgerro += msg;
+	        	msgerro += "\n";
+	        }
+	        if(compositeData.tema == ""){
+				
+	        	msg = "Nenhum tema foi selecionado";
+	        	console.log(msg);
+	        }
+	        if(msgerro != ""){
+	        	alert(msgerro);
+	        	return false;
 	        }
 	        return compositeData;
 	    }
@@ -601,6 +659,17 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoObj)._);
 		    };    
 		}
+		function tooltips(){
+			var xtrTooltip;
+
+			xtrTooltip = new XtrTooltip("table_tooltip","bottom");
+			xtrTooltip.addTrigger("[data-ponto-extrapolacao]",{
+				content: "Extrapolar"
+			});
+			xtrTooltip.addTrigger("[data-ponto-interpolacao]",{
+				content: "Interpolar"
+			});
+		}
 		function conteudo(){
 		    colunaObj = {
 		        "index":0,
@@ -664,7 +733,17 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			var dojoTipos;
 			var dojoTemas;
 
+			var tipo,tema;
+
+			var dojoTipoAtual;
+			var dojoTemaAtual;
+
+			var linhaObj;
+			var colunaObj;
+
 			var compositeDataOnCurrentChart;
+
+			var selectTipo,selectTema;
 
 			dojo = SuperModule(Object).getDojo();
 	        dojoTipos = dojo.tipos;
@@ -690,34 +769,18 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        };
 	        colunaObj = {
 	        	"index": 0,
+	        	"style": styleSelects,
 	        	"colspan": 222,
 	        	"type": "th"
 	        };
-	        
-		    selectTipostObj = {
-	        	"value": compositeData.tipo,
-	            "optionContent": dojoTipos,
-	            "optionPropContent": "traducao.portuguesBr",
-	            "optionPropValue": "variavel",
-	            "id": xtrTable.getId()+"_selectTipo",
-	            "title": "Tipo de Grafico",
-	            "titleOrder": "left"
-	        };
-	        selectTemasObj = {
-	        	"value": compositeData.tema,
-		        "optionContent": dojoTemas,
-		        "optionPropContent": "alias",
-		        "optionPropValue": "variavel",
-		        "id": xtrTable.getId()+"_selectTema",
-		        "title": "Tema do Grafico",
-		        "titleOrder": "right"
-		    };
-		    if(mesclando){
-		    	console.log(compositeDataOnCurrentChart);
-		    	dojoTipoAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tipo,"tipos"); 
+	        dojoTipoAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tipo,"tipos"); 
+	        dojoTemaAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tema,"temas"); 
+		    if(mesclando){		    	
 	            dojoFusoes = SuperModule().getDojo("fusoes");
-	            console.log(dojoFusoes);
-	            dojoTipos = dojoTipos.filter(function(value){
+	            dojoTipos = dojoTipos.filter(function(dojoTipo){
+	                if(!XtrGraficoUtil.isset(dojoTipoAtual))
+	                	return false;
+	                
 	                var dojoFusao;
 	                var dojoFusaoIndex;
 
@@ -726,18 +789,19 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                var categorias,categoria;
 	                var categoriaIndex;
 
-	                categorias = dojoTipoAtual.categoria;   
+	                categorias = dojoTipoAtual.categoria;
 
 	                show = false;
 	                for(categoriaIndex = 0; categorias.length > categoriaIndex; categoriaIndex++){
 	                    categoria = categorias[categoriaIndex]; 
+
 	                    for(dojoFusaoIndex = 0; dojoFusoes.length > dojoFusaoIndex; dojoFusaoIndex++){
 	                        dojoFusao = dojoFusoes[dojoFusaoIndex];
 	                        innerShow = false;
 	                        if(dojoFusao.de.indexOf(categoria) >= 0){
-	                            innerShow = innerShow || dojoFusao.para.indexOf(value.variavel) >= 0;
+	                            innerShow = innerShow || dojoFusao.para.indexOf(dojoTipo.variavel) >= 0;
 	                            innerShow = innerShow || dojoFusao.para.indexOf("all") >= 0;
-	                            if(dojoFusao.exceto.indexOf(value.variavel) >= 0
+	                            if(dojoFusao.exceto.indexOf(dojoTipo.variavel) >= 0
 	                            || dojoFusao.exceto.indexOf("all") >= 0){
 	                                innerShow = !innerShow;
 	                            }
@@ -748,12 +812,49 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                return show;
 	            });
 		    }
+	        
+		    tipo = XtrGraficoUtil.isset(dojoTipoAtual) ? dojoTipoAtual.ativo : false;
+		    tipo = tipo ? dojoTipoAtual.variavel : "";
 
-		    
+		    tema = XtrGraficoUtil.isset(dojoTemaAtual) ? dojoTemaAtual.variavel : "";
+
+		    selectTipostObj = {
+	            "source": dojoTipos,
+	            "value": tipo,
+	            "search": true,
+	            "data-id": "tipo&tema",
+	            "property": {
+	            	"content": "traducao.portuguesBr",
+	           	 	"value": "variavel"
+	           	},
+	           	"circulo":{
+	           		"source": ICONES_TIPOS,
+	           		"on": "variavel"
+	           	},
+	            "title": "Tipo de Grafico"
+	        };
+	        selectTemasObj = {	        	
+	        	"source": dojoTemas,
+	        	"value": tema,
+	            "search": true,
+	            "data-id": "tipo&tema",
+	            "property": {
+	            	"content": "alias",
+	           	 	"value": "variavel",
+	           	},
+	           	"circulo":{
+	           		"source": ICONES_TEMAS,
+	           		"on": "variavel",	           		
+	           		"tag": "svg"
+	           	},
+	            "title": "Tema de Grafico"
+		    };
+		    selectTipo = XtrDivSelect(xtrTable.getId()+"_tipo",selectTipostObj);
+		    selectTema = XtrDivSelect(xtrTable.getId()+"_tema",selectTemasObj);
 
 		    div = document.createElement("div");
 		    div.className = classSelects;
-		    div.appendChild(XtrSelect(selectTipostObj));
+		    div.appendChild(selectTipo);
 
 		    if(hasDividerOnSelect){
 			    divider = document.createElement("div");
@@ -761,7 +862,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    	div.appendChild(divider);
 		    }
 
-		    div.appendChild(XtrSelect(selectTemasObj));
+		    div.appendChild(selectTema);
 
 		    xtrTable.appendIn(linhaObj,colunaObj,div);
 		}
@@ -782,7 +883,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        "addEventListener":{
 		            "event":"click",
 		            "fn": function(){ 
-		                generateAction(false,mesclando,"Pelo menos uma serie deve estar selecionada");
+		                generateAction(false,mesclando);
 		            }
 		        }
 		    }
@@ -792,7 +893,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            "addEventListener":{
 	                "event":"click",
 	                "fn": function(){ 
-	                    generateAction(true,mesclando,"Pelo menos umas serie não deve estar selecionada");
+	                    generateAction(true,mesclando);
 	                }
 	            }
 	        }
@@ -814,6 +915,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			titulos(true);
 			paginadores();
 			conteudo();
+			tooltips();
 			restante();
 			selects();
 			butoes();

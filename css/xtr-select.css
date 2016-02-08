@@ -17,3 +17,252 @@
 	text-align: left;
 	margin-left: .3em;
 }
+/**
+ * DIV SELECT
+ */
+.xtr.select{
+    -webkit-touch-callout: none!important;
+    -webkit-user-select: none!important;
+    -khtml-user-select: none!important;
+    -moz-user-select: none!important;
+    -ms-user-select: none!important;
+    user-select: none!important;
+
+    -webkit-transition: all .3s;
+    -moz-transition: all .3s;
+    -ms-transition: all .3s;
+    -o-transition: all .3s;
+    transition: all .3s;
+
+    border: 1px solid rgba(22,22,22,.22);
+
+    border-top-left-radius: .3em;   
+    border-top-right-radius: .3em; 
+    border-bottom-left-radius: .3em;   
+    border-bottom-right-radius: .3em; 
+
+    -webkit-box-shadow: inset 0 1px 0 rgba(44, 44, 44, 0.15), 0 1px 1px rgba(44, 44, 44, 0.075) !important;
+            box-shadow: inset 0 1px 0 rgba(44, 44, 44, 0.15), 0 1px 1px rgba(44, 44, 44, 0.075) !important;
+
+    width: 100%;
+}
+.xtr.select:hover{
+    border: 1px solid rgba(100,180,180,.8);
+    -webkit-box-shadow: inset 0 1px 0 rgba(44, 88, 88, 0.15), 0 1px 1px rgba(22, 88, 88, 0.075) !important;
+            box-shadow: inset 0 1px 0 rgba(44, 88, 88, 0.15), 0 1px 1px rgba(22, 88, 88, 0.075) !important;
+}
+.xtr.select:hover .opcoes{
+    -webkit-box-shadow: inset 0 1px 0 rgba(44, 88, 88, 0.15), 0 1px 1px rgba(22, 88, 88, 0.075) !important;
+            box-shadow: inset 0 1px 0 rgba(44, 88, 88, 0.15), 0 1px 1px rgba(22, 88, 88, 0.075) !important;
+}
+.xtr.select:focus{
+    border: 1px solid rgba(22,22,22,.44);
+}
+.xtr.select.erro{
+    background: rgba(222, 180, 180, 0.3);    
+    border: 1px solid rgba(222,122,122,.8);
+
+    -webkit-box-shadow: inset 0 1px 0 rgba(222,122,122, 0.15), 0 1px 1px rgba(222,122,122, 0.075) !important;
+            box-shadow: inset 0 1px 0 rgba(222,122,122, 0.15), 0 1px 1px rgba(222,122,122, 0.075) !important;
+}
+.xtr.select.erro .titulo{
+    color: rgba(222, 180, 180, 0.5);
+}
+.xtr.select.mostrando{
+
+    border-top-left-radius: .3em;   
+    border-top-right-radius: .3em; 
+    border-bottom-left-radius: 0;   
+    border-bottom-right-radius: 0; 
+}
+/*.xtr.select:not(.pesquisando):hover .titulo,*/
+.xtr.select:not(.pesquisando):hover .icone{
+    color: rgba(100,180,180,.8) !important;
+}
+.xtr.select .icone{
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+    float: left;
+    position: relative;
+    left: calc(100% - 12px);
+    top: 10px;
+    margin-left: -6px;
+    cursor: pointer;
+
+    color: rgba(10,10,10,.4);
+
+    -webkit-transition: color .4s;
+    -moz-transition: color .4s;
+    -ms-transition: color .4s;
+    -o-transition: color .4s;
+    transition: color .4s;
+
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+}
+.xtr.select .pesquisa{
+    position: absolute;
+    display: table;
+
+    text-align: left;
+
+    font: inherit;
+    padding: 0.3em .6em;
+
+    background: transparent;
+
+    border: none;
+}
+.xtr.select:not(.pesquisando) .pesquisa{
+    color: transparent;
+}
+.xtr.select .titulo{
+    background-color: rgba(180,180,180,.1); 
+    padding: .3em .6em;
+    display: block;
+    cursor: pointer;
+    text-align: left;
+    color: #c0c0c0;
+
+    -webkit-transition: color .4s;
+    -moz-transition: color .4s;
+    -ms-transition: color .4s;
+    -o-transition: color .4s;
+    transition: color .4s;
+}
+.xtr.select.selecionada .titulo,
+.xtr.select.selecionado .titulo{
+    color: #222;    
+}
+.xtr.select.pesquisando:not(.vazio) .titulo{
+    color: transparent;
+}
+.xtr.select.pesquisando:not(.vazio) .titulo .circulo{
+    opacity: 0;
+}
+.xtr.select.pesquisando .titulo{
+    color: #c0c0c0;
+}
+.xtr.select.pesquisando .titulo .circulo{
+    opacity: .2 !important;    
+
+    -webkit-transition: opacity .0s;
+    -moz-transition: opacity .0s;
+    -ms-transition: opacity .0s;
+    -o-transition: opacity .0s;
+    transition: opacity .0s;
+}
+.xtr.select .opcoes{
+    max-height: 1.875em;
+    
+    -webkit-transition: max-height .3s;
+    -moz-transition: max-height .3s;
+    -ms-transition: max-height .3s;
+    -o-transition: max-height .3s;
+    transition: max-height .3s;
+
+    position: absolute;
+}
+.xtr.select.mostrando .opcoes{
+    z-index: 22222;
+
+    max-height: calc(1.875em * 6);
+    overflow-y: auto;
+    background-color: #fff;
+    margin-left: -1px;
+    
+    border-color: inherit;
+    border-style: inherit;
+    border-width: inherit;
+
+    border-top-left-radius: 0;   
+    border-top-right-radius: 0; 
+    border-bottom-left-radius: .3em;   
+    border-bottom-right-radius: .3em;
+}
+.xtr.select .opcao{
+    background-color: rgba(180,180,180,.1); 
+    padding: .3em .6em;
+    display: none;
+
+    cursor: pointer;
+
+    color: hsla(0, 0%, 0%, 0.7);
+
+    text-align: left;
+
+    -webkit-transition: background .3s;
+    -moz-transition: background .3s;
+    -ms-transition: background .3s;
+    -o-transition: background .3s;
+    transition: background .3s;
+}
+.xtr.select .opcao:not(:last-child){
+    border-bottom: 1px solid rgba(180,180,180,.3);
+}
+.xtr.select.mostrando .opcao{
+    display: block;
+}
+.xtr.select.pesquisando:not(.vazio):not(.vazia) .opcao:not(.encontrado):not(.encontrada){
+    display: none;
+}
+.xtr.select .opcao.ativo,   
+.xtr.select .opcao.ativa{   
+    background-color: rgba(100,180,180,.3);
+}
+.xtr.select .circulo *,
+.xtr.select .circulo{
+    border-radius: .2em;
+}
+.xtr.select .circulo .img{
+    width: 15px;
+    height: 15px;
+    opacity: .8;
+}
+.xtr.select .circulo{
+    border: none;
+
+    width: 15px;
+    height: 15px;
+
+    color: black;
+    
+    margin-top: .15em;
+    margin-right: .3em;
+
+    float: left;
+    
+    -webkit-transition: opacity .3s;
+    -moz-transition: opacity .3s;
+    -ms-transition: opacity .3s;
+    -o-transition: opacity .3s;
+    transition: opacity .3s;
+}
+.xtr.select .opcao.selecionado,    
+.xtr.select .opcao.selecionada{    
+    background-color: rgba(180,180,180,.3);
+}
+.xtr.select .nenhuma,
+.xtr.select .nenhum{
+    background-color: rgba(180,180,180,.1); 
+    padding: .3em .6em;
+    cursor: pointer;
+    display: none;
+}
+.xtr.select.pesquisando .opcao.encontrada ~ .nenhuma,
+.xtr.select.pesquisando .opcao.encontrado ~ .nenhuma,
+.xtr.select.pesquisando .opcao.encontrada ~ .nenhum,
+.xtr.select.pesquisando .opcao.encontrado ~ .nenhum{      
+    display: none !important;
+}
+.xtr.select.mostrando .nenhum:only-child{
+    display: block;
+}
+.xtr.select.pesquisando .opcao:not(.encontrada):not(.encontrada) ~ .nenhuma,
+.xtr.select.pesquisando .opcao:not(.encontrado):not(.encontrado) ~ .nenhum{  
+    display: block;
+}

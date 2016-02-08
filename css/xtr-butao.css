@@ -15,6 +15,7 @@
 }
 .xtrGrupoButoes.linear {
   -webkit-flex-direction: row;
+  flex-direction: row;
 }
 .xtrGrupoButoes.igualmente.distribuido .xtrButao,
 .xtrGrupoButoes.igualmente.distribuido .xtrSelect {
@@ -47,8 +48,23 @@
   border-bottom-right-radius: .4em;
   border-top-right-radius: .4em;
 }
-:not(.xtrGrupoButoes) > .xtrButao {
+.xtrButao.arredondado {
   border-radius: 4px !important;
+}
+.xtrButao.tamanho.metade {
+  width: .3em;
+}
+.xtrButao.tamanho.normal {
+  width: 0.6em;
+}
+.xtrButao.tamanho.dobrado {
+  width: 1.2em;
+}
+.xtrButao.tamanho.tripilcado {
+  width: 1.8em;
+}
+.xtrButao.tamanho.quadruplicado {
+  width: 2.4em;
 }
 .xtrButao {
   padding: .3em .6em;

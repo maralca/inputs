@@ -5,11 +5,11 @@
 
 .xtrGrupoButoes{
 
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
 
 	&.desigualmente.distribuido{
 		.xtrButao.principal{
@@ -22,7 +22,8 @@
 		}
 	}
 	&.linear{
-		-webkit-flex-direction: row;
+        -webkit-flex-direction: row;
+        flex-direction: row;
 	}
 	&.igualmente.distribuido{ 
 		.xtrButao,.xtrSelect{
@@ -61,8 +62,25 @@
 		}
 	}
 }
-:not(.xtrGrupoButoes) > .xtrButao{  
+.xtrButao.arredondado{  
  	border-radius: 4px !important;
+}
+.xtrButao.tamanho{
+	&.metade{
+		width: .3em;
+	}
+	&.normal{
+		width: .6em
+	}
+	&.dobrado{
+		width: 1.2em
+	}
+	&.tripilcado{
+		width: 1.8em
+	}
+	&.quadruplicado{
+		width: 2.4em
+	}
 }
 .xtrButao{
 	padding: .3em .6em;
@@ -104,7 +122,7 @@ fieldset[disabled] .xtrButao {
 	filter: alpha(opacity=65) !important;
 
 	-webkit-box-shadow: none !important;
-	      box-shadow: none !important;
+	        box-shadow: none !important;
 
 	opacity: .65 !important;
 }
