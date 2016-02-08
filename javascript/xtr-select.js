@@ -572,7 +572,7 @@ function XtrDivSelect(id,kwargs){
 		esconder(select);
 		pararPesquisa(select);
 	}
-	function reclherTodos(select){
+	function recolherTodos(select){
 		var opcoes,opcao;
 		var opcaoIndex;
 
