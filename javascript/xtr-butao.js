@@ -1,112 +1,101 @@
-function XtrButao(xtrButaoObj){
-	var butaoType = "xtrButao-default";
-	var butaoContent = "";
+function XtrButao(kwargs){
+	var cor;
+	var conteudo;
+	var onclick;
+	var onchange;
+	var onmouseover;
+	var onmouseout;
+	var className;
 
-	var exceptions = ["content","type","addEventListener","class"];
+	var property,innerProperty;
+	var value,innerValue;
+
+	var excecoes;
+
+	excecoes = [];
+
+	if(!XtrGraficoUtil.isobj(kwargs)){
+		kwargs = {
+			conteudo: kwargs
+		};
+	}
+
+	cor = kwargs.color || kwargs.cor || "default";
+	excecoes.push("color","cor");
+
+	conteudo = kwargs.content || kwargs.conteudo;
+	excecoes.push("conteudo","content");
+
+	onclick = kwargs.onclick || kwargs.click;
+	excecoes.push("onclick","click");
+
+	onchange = kwargs.onchange || kwargs.change;
+	excecoes.push("onchange","change");
+
+	onmouseover = kwargs.onmouseover || kwargs.hover || kwargs.mouseover;
+	excecoes.push("onmouseover","hover","mouseover");
+
+	onmouseout = kwargs.onmouseout || kwargs.mouseout;
+	excecoes.push("onmouseout","mouseout");
+
+	className = kwargs["class"] || kwargs.className || "";
+	excecoes.push("class","className");
+
+	style = kwargs.style || {};
+	excecoes.push("style");
 
 	butao = document.createElement("div");
+	butao.setAttribute("class","xtr butao "+cor+" "+className);
 
+	butao.innerHTML = conteudo;
 
-	if(XtrGraficoUtil.isobj(xtrButaoObj)){
-		if(XtrGraficoUtil.isset(xtrButaoObj.type))
-			butaoType = "xtrButao-"+xtrButaoObj.type;
+	XtrGraficoUtil.setAttributes(butao,kwargs,excecoes);
+	XtrGraficoUtil.setStyle(butao,style);
+	XtrGraficoUtil.setListener(butao,onclick,"click");
+	XtrGraficoUtil.setListener(butao,onchange,"change");
+	XtrGraficoUtil.setListener(butao,onmouseover,"mouseover");
+	XtrGraficoUtil.setListener(butao,onmouseout,"mouseout");
 
-		if(XtrGraficoUtil.isset(xtrButaoObj.content)){
-			butaoContent = xtrButaoObj.content;
-			if(!(butaoContent instanceof Node)){
-				butaoContent = document.createTextNode(butaoContent);
-			}
-			butao.appendChild(butaoContent);
-		}
-		butao = setAttrs(butao,xtrButaoObj);
+	XtrButao.desativar = desativar;
+	XtrButao.ativar = ativar;
+	XtrButao.mudarCor = mudarCor;
+
+	butao.ativar = autoAtivar;
+	butao.desativar = autoDesativar;
+	butao.mudarCor = autoMudarCor;
+	butao.cor = cor;
+
+	butao.corDefault = cor;	
+	butao.classDefault = butao.className;
+
+	return butao;
+
+	function desativar(butao){
+		XtrGraficoUtil.removeClass(butao,"ativo");
+
+		XtrGraficoUtil.removeClass(butao,"ativa");
 	}
-	else{
-		butaoContent = document.createTextNode(xtrButaoObj);
-		butao.appendChild(butaoContent);
+	function ativar(butao){
+		desativar(butao);
+		butao.className += " ativo";
 	}
+	function mudarCor(butao,novaCor){
+		XtrGraficoUtil.removeClass(butao,butao.cor);
+		XtrGraficoUtil.addClass(butao,novaCor);
 
-
-	butao.className="xtrButao "+butaoType;
-
-	function changeAttr(element,attr,value){
-		var originalValue = null;
-		if(XtrGraficoUtil.isset(attr.style)){
-			var attrStyleName = attr.style.name;
-			element.style[attrStyleName] = value;
-		}
-		else{
-			element.setAttribute(attr,value);
-		}
-	}	
-	function changeAttrWhen(element,attrName,attrCondValues,cond){
-		var verdadeiro = attrCondValues.verdadeiro;
-		var falso = attrCondValues.falso;
-		var attrValue = !XtrGraficoUtil.isset(cond) ? falso : cond ? verdadeiro : falso;
-		element.setAttribute(attrName,attrValue);
+		butao.cor = novaCor;
 	}
-	function getAttr(element,attr,neddEval){
-		var originalValue = null;
-		if(XtrGraficoUtil.isset(attr.style)){
-			var attrStyleName = attr.style.name;
-			originalValue = element.style[attrStyleName];
-		}
-		else{
-			originalValue = element.getAttribute(attr);
-		}
-		if(XtrGraficoUtil.isset(neddEval) ? neddEval : false)
-			originalValue = eval(originalValue);
-		return originalValue;
+	function autoAtivar(){
+		ativar(this);
 	}
-	function setAttrs(target,objAttrs){
-		var newTarget = target;
-		if(XtrGraficoUtil.isobj(objAttrs)){
-			for(var propName in objAttrs){			
-				var propValue = objAttrs[propName];	
-				if(exceptions.indexOf(propName) < 0){
-					if(!XtrGraficoUtil.isobj(propValue))			
-						newTarget.setAttribute(propName,propValue);
-					else{
-						for(var subPropName in propValue){
-							var subPropValue = propValue[subPropName];
-							newTarget[propName][subPropName]=subPropValue;
-						}
-					}
-				}
-			}			
-			if(XtrGraficoUtil.isset(objAttrs.addEventListener)){
-				var propValue=objAttrs.addEventListener;
-				var evento = "click";
-				var callback = function(t,bt){
-					console.log(t,bt)
-				};
-
-				if(XtrGraficoUtil.isset(propValue.event))
-					evento = propValue.event;
-
-				if(XtrGraficoUtil.isset(propValue.fn))
-					callback = propValue.fn;
-
-				newTarget.addEventListener(evento,function(){
-					this.getAttr = function(x,y){
-						return getAttr(this,x,y);
-					}
-					this.changeAttr = function(x,y){
-						changeAttr(this,x,y);
-					}
-					this.changeAttrWhen = function(x,y,z){
-						changeAttrWhen(this,x,y,z);
-					}
-					callback(this,butaoType);
-				});
-			}
-			if(XtrGraficoUtil.isset(objAttrs["class"])){
-				var className = objAttrs['class'];
-				butao.className = butao.className +" "+ className;
-				butaoType += " "+className;
-			}
-		}
-		return newTarget;
+	function autoDesativar(){
+		desativar(this);
 	}
-	this._ = butao;
-	return this;
+	function autoMudarCor(novaCor){
+		
+		XtrGraficoUtil.removeClass(this,this.cor);
+		XtrGraficoUtil.addClass(this,novaCor);
+
+		this.cor = novaCor;
+	}
 }

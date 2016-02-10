@@ -17,11 +17,15 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    var valorIndex;
 
 	    var div;
+
+	    var paginacaoScript;
     ///////////////
     //CONSTRUCAO //
     ///////////////
 
     	xtrTable = new XtrTable(tableId);
+
+    	paginacaoScript = {};
 
 	    splits = ['Qtd de','Qtd'];
 
@@ -32,20 +36,24 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    mesclando = XtrGraficoUtil.isset(mesclando) ? mesclando : false;
 
-	    tableName = mesclando ? "Mesclar Grafico" : "Novo Grafico";
+	    tableName = mesclando ? "Mesclando" : "Criando";
 
+	    classTableName = mesclando ? "xtr alert rosa" : "xtr alert ciano";
 	    classSerie = "";
 	    classRotulo = "principal";
 	    classExtrapolate = "tamanho metade";
 	    classInterpolate = "tamanho metade";
-	    classPaginador = "xtrGrupoButoes linear centralizado dobrado arredondado espacado";
-	    classGroupButtons = "xtrGrupoButoes linear centralizado desigualmente distribuido";
-	    classSelects = "xtrGrupoButoes linear centralizado espacado igualmente distribuido";
-	    classButtons = "xtrGrupoButoes linear centralizado espacado igualmente distribuido arredondado";
-	    classInconsistenciaLegend = "xtrAlert-amarelo";
-	    classInterpolateLegend = "xtrAlert-azul";
-	    classExtrapolateLegend = "xtrAlert-vermelho";
+	    classPaginador = "xtr grupo liso linear centralizado padding dobrado arredondado espacado";
+	    classGroupButtons = "xtr grupo linear centralizado desigualmente distribuido";
+	    classSelects = "xtr grupo linear centralizado espacado igualmente distribuido";
+	    classButtons = "xtr grupo linear centralizado espacado igualmente distribuido arredondado";
+	    classInconsistenciaLegend = "xtr alert amarelo";
+	    classInterpolateLegend = "xtr alert azul";
+	    classExtrapolateLegend = "xtr alert vermelho";
 
+	    styleTableName = {
+	    	"opacity": ".65"
+	    };
 	    styleColumn = {};
 	    styleColumnPaginador = {};
 	    styleColumnGroupButtons = {};
@@ -77,72 +85,117 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	/////////////////////
 	//METODOS PROPRIOS //
 	/////////////////////
-		function interpolateAction(tableId,context){
+		function interpolateAction(context){
+			var alvo;
 
-            var alvo = context.getAttribute("data-ponto-interpolacao");
-            var rotulos = compositeData.rotulos;                
+			var inconsistencias,inconsistencia;
 
-            for (var serieIndex = 0; serieIndex < compositeData.series.length; serieIndex++){
-                
-                var newPoint = XtrNumerico.interpolate(compositeData,serieIndex,alvo,3);                    
-                var valores = compositeData.series[serieIndex].dados;
+			var polados;
+
+			var temIncosistenciaAcumulada;
+			var temIncosistenciaNaSerie;
+			var temIncosistenciaNoRotulo1,temIncosistenciaNoRotulo2;
+
+			var rotulos,rotulo1,rotulo2;
+
+			var series,serie;
+			var serieIndex;
+
+			var valores;
+			var formatados;
+
+			var novoPonto;
+
+			var paginaAtual;
+
+			series = compositeData.series;
+
+			inconsistencias = compositeData.inconsistencias;
+
+			polados = compositeData.polados;
+
+            rotulos = compositeData.rotulos;          
+
+            alvo = context.getAttribute("data-ponto-interpolacao");
+
+            for(serieIndex = 0; series.length > serieIndex; serieIndex++){
+                serie = series[serieIndex];
+
+                valores = serie.dados;
+                formatados = serie.dadosFormatados;
+
+            	novoPonto = XtrNumerico.interpolate(compositeData,serieIndex,alvo,3);
+
+                novoPonto.x = novoPonto.x.toString();
+                novoPonto.y = Math.round(novoPonto.y);
+
                 if(alvo-1 >= 0){
-                    var inconsistencia = valores[alvo-1];
+                    inconsistencia = valores[alvo-1];
                 }
                 else{
-                    var inconsistencia = valores[alvo+1];
-                }                  
+                    inconsistencia = valores[alvo+1];
+                }
 
-                var auxRotulo1 = rotulos[alvo];
-                var auxRotulo2 = rotulos[alvo-1];
+                rotulo1 = rotulos[alvo];
+                rotulo2 = rotulos[alvo-1];
                 
-                var hasIncoSerie = XtrGraficoUtil.hasInObj(compositeData.inconsistencias,'serieIndex',serieIndex);
-                var hasIncoRotulo1 = XtrGraficoUtil.hasInObj(compositeData.inconsistencias,'rotulo',auxRotulo1);
-                var hasIncoRotulo2 = XtrGraficoUtil.hasInObj(compositeData.inconsistencias,'rotulo',auxRotulo2);
+                temIncosistenciaNaSerie = XtrGraficoUtil.hasInObj(inconsistencias,'serieIndex',serieIndex);
 
-                var incoAcumulada = hasIncoSerie && (hasIncoRotulo1 || hasIncoRotulo2);
+                temIncosistenciaNoRotulo1 = XtrGraficoUtil.hasInObj(inconsistencias,'rotulo',rotulo1);
+                temIncosistenciaNoRotulo2 = XtrGraficoUtil.hasInObj(inconsistencias,'rotulo',rotulo2);
+                temIncosistenciaNoRotulo = temIncosistenciaNoRotulo1 || temIncosistenciaNoRotulo2;
 
-                if(newPoint.y < 0 || incoAcumulada){
-                    newPoint.y = inconsistencia;
-                    compositeData.inconsistencias.push({
+                temIncosistenciaAcumulada = temIncosistenciaNaSerie && temIncosistenciaNoRotulo;
+
+                if(novoPonto.y < 0 || temIncosistenciaAcumulada){
+                    novoPonto.y = inconsistencia;
+                    inconsistencias.push({
                         "serie": serieIndex,
-                        "rotulo": newPoint.x
+                        "rotulo": novoPonto.x
                     });
                 }
-                compositeData.series[serieIndex].dados.splice(alvo,0,Math.round(newPoint.y));
-                compositeData.polados.push({
+                valores.splice(alvo,0,novoPonto.y);
+                formatados.splice(alvo,0,novoPonto.y);
+
+                polados.push({
                 	"type": 'interpolacao', 
-                	"value": newPoint.x
+                	"value": novoPonto.x
                 });
             };
-            if(newPoint)
-                compositeData.rotulos.splice(alvo,0,newPoint.x.toString()); 
+            if(series.length > 0)
+                rotulos.splice(alvo,0,novoPonto.x); 
 
-            nowYouSeeMeMore(context,tableId);                     
+            paginaAtual = paginacaoScript[tableId].getPaginaAtual();
+
+            mesclarCustomizar(mesclando);
+
+            paginacaoScript[tableId].paginar(paginaAtual);               
         }
-		function extrapolateAction(tableId,context){
-
-	        var alvo = context.getAttribute("data-ponto-extrapolacao");
-	        var rotulos = compositeData.rotulos;
+		function extrapolateAction(context){
+	        var alvo;
 
 	        var inconsistencias,inconsistencia;
-	        var incosistenciaAcumulada;
-	        var incosistenciaNaSerie;
-	        var incosistenciaNoRotulo;
+
+	        var temIncosistenciaAcumulada;
+	        var temIncosistenciaNaSerie;
+	        var temIncosistenciaNoRotulo;
 
 	        var series,serie;
 	        var serie;
 
-	        var valores,valor;
+	        var formatados;
+	        var valores;
 	        var novoPonto;
 
 	        var polados;
 
 	        var rotulos,rotulo;
 
+	        alvo = context.getAttribute("data-ponto-extrapolacao");
+
 	        rotulos = compositeData.rotulos;
 	        inconsistencias = compositeData.inconsistencias;
-	        console.log(compositeData);
+
 	        series = compositeData.series;
 	        polados = compositeData.polados;
 
@@ -150,50 +203,62 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	            novoPonto = XtrNumerico.extrapolate(compositeData,serieIndex,alvo,3);   
 
+	            novoPonto.x = novoPonto.x.toString();
+	            novoPonto.y = Math.round(novoPonto.y);
+
 	            serie = series[serieIndex];                
-	            valores = serie.dados; 
+	            valores = serie.dados;
+	            formatados = serie.dadosFormatados;
 
 	            inconsistencia = valores[alvo];
 	            rotulo = rotulos[alvo];
 
-	            incosistenciaNaSerie = XtrGraficoUtil.hasInObj(inconsistencias,'serie',serieIndex);
-	            incosistenciaNoRotulo = XtrGraficoUtil.hasInObj(inconsistencias,'rotulo',rotulo);
+	            temIncosistenciaNaSerie = XtrGraficoUtil.hasInObj(inconsistencias,'serie',serieIndex);
+	            temIncosistenciaNoRotulo = XtrGraficoUtil.hasInObj(inconsistencias,'rotulo',rotulo);
 
-	            incosistenciaAcumulada = incosistenciaNaSerie && incosistenciaNoRotulo;
-	            if(novoPonto.y < 0 || incosistenciaAcumulada){
+	            temIncosistenciaAcumulada = temIncosistenciaNaSerie && temIncosistenciaNoRotulo;
+	            if(novoPonto.y < 0 || temIncosistenciaAcumulada){
 	                novoPonto.y = inconsistencia;
-	                compositeData.inconsistencias.push({
+	                inconsistencias.push({
 	                    "serie": serieIndex,
 	                    "valor": novoPonto.x
 	                });
 	            }
-	           	valores.splice(alvo,0,Math.round(novoPonto.y));
+	           	valores.splice(alvo,0,novoPonto.y);
+	           	formatados.splice(alvo,0,novoPonto.y);
 	            polados.push({
 	            	"type": 'extrapolacao', 
 	            	"value": novoPonto.x
 	            });
 	        };
-	        if(novoPonto)
+	        if(series.length > 0){
 	            rotulos.splice(alvo,0,novoPonto.x); 
+	        }
 
-	        nowYouSeeMeMore(context,tableId);
+	        mesclarCustomizar(mesclando);
 	    }
-	    function selectorAction(acao,context,classDefault){
-	        var clicado = context.getAttr("data-clicado",true);
+	    function selectorAction(acao,context){
+	    	var clicado;
 
-	        context.changeAttr("data-clicado",!clicado);
-	        context.changeAttrWhen("class",{
-	            "verdadeiro": "xtrButao xtrButao-inverse",
-	            "falso": "xtrButao "+classDefault
-	        },!clicado);
+	    	var targetIndex;
 
-	        var targetIndex = context.getAttr('data-target-'+acao+'Index',true);
+	    	var objStyle;
+
+	        clicado = context.getAttribute("data-clicado");
+	        clicado = eval(clicado);
+
+	        targetIndex = context.getAttribute('data-target-'+acao+'Index');
+	        targetIndex = eval(targetIndex);
 
 	        var cor = !clicado ? "rgba(34, 36, 38, 0.20)" : "";
 
-	        objStyle = {};
-	        objStyle['data-'+acao+'Ativa'] = clicado;
-	        objStyle.style = {background: cor,color: cor};
+	        objStyle = {
+	        	["data-"+acao+"Ativa"]: clicado,
+	        	"style": {
+	        		"background": cor,
+	        		"color": cor
+	        	}
+	        };
 
 	        xtrTable.changeAttr('td[data-'+acao+'Index="'+targetIndex+'"]',
 	            objStyle,
@@ -225,14 +290,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 		        if(mesclar){
 		            compositeDataHandler.save(selectedCompositeData);
-		            xtrTab.changeActiveAndCall('_xtr_tab_grafico_principal', function(){
+		            xtrTab.mostrarAtivarChamar('tab_exibir', function(){
 		                mergeChartData(compositeDataHandler.load());                            
 		            });
 
 		        }
 		        else{
 		            compositeDataHandler.override(selectedCompositeData)
-		            xtrTab.changeActiveAndCall('_xtr_tab_grafico_principal', function(){                      
+		            xtrTab.mostrarAtivarChamar('tab_exibir', function(){                      
 		                generateWithLoading(compositeDataHandler.current());
 		            });
 		        }
@@ -407,7 +472,6 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
         function organize(){
         	if(compositeData.dado != "cronologica")
         		return;
-
         	var series,serie;
 
         	var valores;
@@ -424,16 +488,19 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
         		order.push(b > a);
         		return b > a;
         	});
-        	cloneOrder = XtrGraficoUtil.clone(order);
         	for(serieIndex = 0; series.length > serieIndex; serieIndex++){
         		serie = series[serieIndex];
         		valores = serie.dados;
         		formatados = serie.dadosFormatados;
+
+        		cloneOrder = XtrGraficoUtil.clone(order);
         		valores.sort(function(){
-        			return order.unshift();
+        			return cloneOrder.shift();
         		});
+
+        		cloneOrder = XtrGraficoUtil.clone(order);
         		formatados.sort(function(){
-        			return formatados.unshift();
+        			return cloneOrder.shift();
         		});
         	}
         }
@@ -540,9 +607,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    colunaObj = {
 		    	"index": 0,
 		    	"type": "th",
+		    	"class": classTableName,
+		    	"style": styleTableName,
 		    	"data-colunaTitulo": true,
 		    	"data-linhaTitulo": true,
-		    	"style": styleColumnGroupButtons
 		    };
 		    xtrTable.appendIn(linhaObj,colunaObj,tableName);
 
@@ -554,54 +622,59 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 		        selectButtonObj = {
 		            "content": rotulo,
-		            "type": "default",
+		            "color": "default",
 		            "class": classRotulo,
 		            "data-clicado":false,
 		            "data-target-colunaIndex":rotuloIndex,
-		            "addEventListener":{
-		                "event":"click",
-		                "fn": function(context,classDefault){ 
-		                    selectorAction('coluna',context,classDefault); 
-		                }
+		            "onclick":function(){
+		            	var clicado;
+
+		            	clicado = this.getAttribute("data-clicado");
+						clicado = eval(clicado);	
+
+		            	selectorAction('coluna',this); 
+
+				        this.setAttribute("data-clicado",!clicado);
+
+	                	if(clicado){
+	                		this.mudarCor(this.corDefault);
+	                	}
+	                	else{
+	                		this.mudarCor("inverse");
+	                	}
 		            }
 		        };
 		        extrapolateButtonObj = {
 				    "content": "e",
 				    "data-ponto-extrapolacao": rotuloIndex,                               
 				    "data-clicado":false,
-				    "type": "vermelho",
+				    "color": "vermelho",
 				    "class": classExtrapolate,
-				    "addEventListener":{
-				        "type": "click",
-				        "fn": function(context){ 
-				            extrapolateAction(tableId,context); 
-				        }
+				    "onclick":function(){ 
+				        extrapolateAction(this);
 				    }
 			    };
 			    interpolateButtonObj = {
 		            "content": "i",
 		            "data-ponto-interpolacao": rotuloIndex+1,
-		            "data-clicado":false,
-		            "type": "azul",
-		            "class":classInterpolate,
-		            "addEventListener":{
-		                "type": "click",
-		                "fn": function(context){ 
-		                    interpolateAction(tableId,context); 
-		                }
+		            "data-clicado": false,
+		            "color": "azul",
+		            "class": classInterpolate,
+		            "onclick": function(){ 
+	                    interpolateAction(this); 
 		            }
 		        };
 		        if(comPolacao){
 		        	if(rotuloIndex == 0){
-		       			div.appendChild(XtrButao(extrapolateButtonObj)._);
+		       			div.appendChild(XtrButao(extrapolateButtonObj));
 	       			}     		
-			        div.appendChild(XtrButao(selectButtonObj)._);
+			        div.appendChild(XtrButao(selectButtonObj));
 			        if(rotulos.length > rotuloIndex+1){
-    			        div.appendChild(XtrButao(interpolateButtonObj)._);
+    			        div.appendChild(XtrButao(interpolateButtonObj));
     			    }
 		        }
 		        else{
-		        	div = XtrButao(selectButtonObj)._;
+		        	div = XtrButao(selectButtonObj);
 		        }
 		        
 		        colunaObj = {
@@ -644,25 +717,36 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        };
 		        butaoObj = {
 		            "content": nome,
-		            "type": "default",
+		            "color": "default",
 		            "class": classSerie,
 		            "data-clicado":false,
 		            "data-target-linhaIndex":serieIndex,
-		            "addEventListener":{
-		                "event":"click",
-		                "fn": function(context,classDefault){
-		                	selectorAction('linha',context,classDefault);
-		                }
+		            "onclick":function(){
+		            	var clicado;
+
+		            	clicado = this.getAttribute("data-clicado");
+						clicado = eval(clicado);	
+
+	                	selectorAction('linha',this);
+
+				        this.setAttribute("data-clicado",!clicado);
+
+	                	if(clicado){
+	                		this.mudarCor(this.corDefault);
+	                	}
+	                	else{
+	                		this.mudarCor("inverse");
+	                	}
 		            }
 		        }
 
-		        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoObj)._);
+		        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoObj));
 		    };    
 		}
 		function tooltips(){
 			var xtrTooltip;
 
-			xtrTooltip = new XtrTooltip("table_tooltip","bottom");
+			xtrTooltip = new XtrTooltip("table_tooltip","baixo");
 			xtrTooltip.addTrigger("[data-ponto-extrapolacao]",{
 				content: "Extrapolar"
 			});
@@ -879,27 +963,21 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 			butaoSelecionadsObj = {
 		        "content": "Selecionados",
-		        "type": "inverse",
-		        "addEventListener":{
-		            "event":"click",
-		            "fn": function(){ 
-		                generateAction(false,mesclando);
-		            }
+		        "color": "inverse",
+		        "onclick": function(){ 
+		            generateAction(false,mesclando);
 		        }
 		    }
 		    butaoNaoSelecionadosObj = {
 	            "content": "Não selecionados",
-	            "type": "default",
-	            "addEventListener":{
-	                "event":"click",
-	                "fn": function(){ 
-	                    generateAction(true,mesclando);
-	                }
+	            "color": "default",
+	            "onclick":function(){ 
+                    generateAction(true,mesclando);
 	            }
 	        }
 	        div = document.createElement("div");
 	        div.className = classButtons;
-	        div.appendChild(XtrButao(butaoSelecionadsObj)._);
+	        div.appendChild(XtrButao(butaoSelecionadsObj));
 
 	        if(hasDividerOnButtons){
 			    divider = document.createElement("div");
@@ -907,7 +985,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    	div.appendChild(divider);
 		    }
 
-	        div.appendChild(XtrButao(butaoNaoSelecionadosObj)._);
+	        div.appendChild(XtrButao(butaoNaoSelecionadosObj));
 
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
 		}
@@ -923,5 +1001,12 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				evalInconsistencias();
 				evalPolados();
 			}
+
+            paginacaoScript[tableId] = new XtrPaginacaoScript(tableId,{
+                "attribute": "data-colunaIndex",
+                "chunkSize": chunkSize,
+                "chunk": 0,
+                "paginator":[tableId+"_paginasTop",tableId+"_paginasBottom"]
+            });    
 		}
 }
