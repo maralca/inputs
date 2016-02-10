@@ -1,3 +1,13 @@
+table.xtrTable .radial {
+    background-color: #dd8888;
+    background-repeat: repeat-x;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#dd8888), to(#aa5555));
+    background: -webkit-linear-gradient(top, #aa5555, #dd8888);
+    background: -moz-linear-gradient(top, #aa5555, #dd8888);
+    background: -ms-linear-gradient(top, #aa5555, #dd8888);
+    background: -o-linear-gradient(top, #aa5555, #dd8888);
+}
+
 table.xtrTable {
     width: 100%;
     border-collapse: collapse;
