@@ -486,8 +486,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
         	order = [];
         	rotulos.sort(function(a,b){
-        		order.push(b > a);
-        		return b > a;
+        		order.push(a - b);
+        		return a - b;
         	});
         	for(serieIndex = 0; series.length > serieIndex; serieIndex++){
         		serie = series[serieIndex];
@@ -841,11 +841,11 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                return true;
 	        });        
 	        dojoTipos.sort(function(a,b){ 
-	        	return a.traducao.portuguesBr > b.traducao.portuguesBr; 
+	        	return a.traducao.portuguesBr - b.traducao.portuguesBr; 
 	        });   
 	             
 	        dojoTemas.sort(function(a,b){ 
-	        	return a.alias > b.alias; 
+	        	return a.alias - b.alias; 
 	        }); 
 
 	        linhaObj = {
