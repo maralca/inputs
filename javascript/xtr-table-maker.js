@@ -52,7 +52,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classExtrapolateLegend = "xtr alert vermelho";
 
 	    styleTableName = {
-	    	"opacity": ".65"
+	    	"opacity": ".65",
+	    	"text-align": "center"
 	    };
 	    styleColumn = {};
 	    styleColumnPaginador = {};
@@ -610,7 +611,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    	"class": classTableName,
 		    	"style": styleTableName,
 		    	"data-colunaTitulo": true,
-		    	"data-linhaTitulo": true,
+		    	"data-linhaTitulo": true
 		    };
 		    xtrTable.appendIn(linhaObj,colunaObj,tableName);
 
@@ -924,7 +925,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            "data-id": "tipo&tema",
 	            "property": {
 	            	"content": "alias",
-	           	 	"value": "variavel",
+	           	 	"value": "variavel"
 	           	},
 	           	"circulo":{
 	           		"source": ICONES_TEMAS,
