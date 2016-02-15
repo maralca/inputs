@@ -213,7 +213,7 @@
 
     color: black;
     
-    margin-top: .15em;
+    margin-top: calc(0.7 * 0.15em);
     margin-right: .3em;
 
     float: left;

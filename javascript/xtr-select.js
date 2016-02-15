@@ -181,6 +181,32 @@ function XtrDivSelect(id,kwargs){
 	/////////////////////////
 	//EVENTOS DE CONTRUÇÃO //
 	/////////////////////////
+		if(XtrGraficoUtil.isset(window.MutationObserver)){
+			var node;
+			var mo;
+			mo = new MutationObserver(function(mutations){
+				mutations.forEach(function(mutation) {
+			        setWidth(mutation.target);
+			    });
+				mo.disconnect();
+			});
+
+			mo.observe(select,{ 
+				attributes: true, 
+				childList: true, 
+				characterData: true 
+			});
+		}
+		else{
+			select.addEventListener("DOMNodeInserted",setWidthEvent);
+		}
+
+		function setWidthEvent(){
+			setTimeout(setWidth,10);
+			setTimeout(function(){
+				select.removeEventListener("DOMNodeInserted",setWidthEvent);
+			},20)
+		}
 
 		document.addEventListener("click",function(event){
 			var select;
@@ -191,12 +217,6 @@ function XtrDivSelect(id,kwargs){
 				fecharExceto();
 			}
 		});
-		function setWidthEvent(){
-			setWidth();
-			this.removeEventListener("click",setWidthEvent);
-		}
-
-		select.addEventListener("click",setWidthEvent);
 		
 	    select.addEventListener("click",function(event){
 	    	var clicado;
@@ -296,10 +316,25 @@ function XtrDivSelect(id,kwargs){
 		select.unselectAll = function(){
 			desselecionarTodos(this);
 		};
+		select.selecionarPorValor = function(valor){
+			var opcao;
+
+			opcao = this.querySelector(".opcao[data-value='"+valor+"']");
+			if(opcao == null){
+				console.warn("XtrDivSelect, nenhuma opcao encontrada");
+				return;
+			}
+
+			selecionar(opcao);
+		}
 		XtrDivSelect.selecionar = function(select,value){
-			var opcoes,opcao;
+			var opcao;
 
 			opcao = select.querySelector(".opcao[data-value='"+value+"']");
+			if(opcao == null){
+				console.warn("XtrDivSelect, nenhuma opcao encontrada");
+				return;
+			}
 
 			selecionar(opcao);
 		};
@@ -369,12 +404,16 @@ function XtrDivSelect(id,kwargs){
 	/////////////////////
 	//METODOS PROPRIOS //
 	/////////////////////
-		function setWidth(){
-			setTimeout(function(){
-				opcoes.style.setProperty("width",titulo.getBoundingClientRect().width+"px");
-				pesquisa.style.setProperty("width",titulo.getBoundingClientRect().width+"px");
-				pesquisa.style.setProperty("height",titulo.getBoundingClientRect().height+"px");
-			},20);
+		function setWidth(select){
+			var opcoes;
+			var pesquisa;
+
+			opcoes = select.querySelector(".opcoes");				
+			pesquisa = select.querySelector(".pesquisa");
+
+			opcoes.style.setProperty("width",titulo.getBoundingClientRect().width+"px");
+			pesquisa.style.setProperty("width",titulo.getBoundingClientRect().width+"px");
+			pesquisa.style.setProperty("height",titulo.getBoundingClientRect().height+"px");
 		}
 		function moverScroll(opcao){
 			var opcaoContainer;

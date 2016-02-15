@@ -343,7 +343,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        colunas = xtrTable.getElements('tbody tr:first-child [data-colunaAtiva="'+isActive+'"]');
 	        colunasRef = xtrTable.getElements('tbody tr:first-child [data-colunaAtiva]');
 	        var alguma = colunasRef.length != colunas.length;
-	        console.log(colunasRef.length,colunas.length);
+	        
 	        for(colunaIndex = 0; colunas.length > colunaIndex && alguma; colunaIndex++){
 	            coluna = colunas[colunaIndex];
 	            removeColumnIndex = coluna.getAttribute("data-colunaIndex");
@@ -493,7 +493,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
         	order = [];
         	rotulos.sort(function(a,b){
-        		Ord = XtrGraficoUtil.compare(a,b);
+        		Ord = XtrGraficoUtil.compare(b,a);
         		order.push(Ord);
         		return Ord;
         	});
@@ -905,8 +905,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                return show;
 	            });
 		    }
-	        
-		    tipo = XtrGraficoUtil.isset(dojoTipoAtual) ? dojoTipoAtual.ativo : false;
+	        else{
+	        	tipo = XtrGraficoUtil.isset(dojoTipoAtual) ? dojoTipoAtual.ativo : false;
+	        }
+		    
 		    tipo = tipo ? dojoTipoAtual.variavel : "";
 
 		    tema = XtrGraficoUtil.isset(dojoTemaAtual) ? dojoTemaAtual.variavel : "";
@@ -944,6 +946,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    };
 		    selectTipo = XtrDivSelect(xtrTable.getId()+"_tipo",selectTipostObj);
 		    selectTema = XtrDivSelect(xtrTable.getId()+"_tema",selectTemasObj);
+
+		    selectTipo.selecionarPorValor(compositeDataHandler.current().tipo);
+		    selectTema.selecionarPorValor(compositeDataHandler.current().tema || xtrGrafico.Default.tema);
 
 		    div = document.createElement("div");
 		    div.className = classSelects;
