@@ -133,16 +133,11 @@ function XtrDivSelect(id,kwargs){
 								circuloContainer = document.createElement("div");
 								circuloContainer.className = "circulo";
 								if(XtrGraficoUtil.isset(kwargs.circulo.tag) ? kwargs.circulo.tag == "svg" : false){
-									circle = XtrGraficoUtil.parseSVG(circle,15,15);
-									circle = new XMLSerializer().serializeToString(circle);
-									circulo = document.createElement("object");
-									circulo.type = "image/svg+xml";
-									circulo.height = "100%";
-									circulo.width = "100%";
+									circulo = document.createElement("img");
 									circulo.className = "svg";
 									circulo.style.width = "100%";
 									circulo.style.height = "100%";
-									circulo.data = 'data:image/svg+xml;base64,'+window.btoa(circle);	
+									circulo.src = 'data:image/svg+xml;base64,'+window.btoa(circle);	
 								}
 								else{
 									var containerTemp;
