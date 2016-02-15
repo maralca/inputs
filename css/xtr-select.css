@@ -6,11 +6,11 @@
     -ms-user-select: none!important;
     user-select: none!important;
 
-    -webkit-transition: all .3s;
-    -moz-transition: all .3s;
-    -ms-transition: all .3s;
-    -o-transition: all .3s;
-    transition: all .3s;
+    -webkit-transition: width 0s, all .3s;
+    -moz-transition: width 0s, all .3s;
+    -ms-transition: width 0s, all .3s;
+    -o-transition: width 0s, all .3s;
+    transition: width 0s, all .3s;
 
     border: 1px solid rgba(22,22,22,.22);
 
@@ -61,11 +61,14 @@
     width: 0.6em;
     height: 0.6em;
     float: left;
+
     position: relative;
     left: calc(100% - 1.2em);
-    top: 0.4em;
+    top: 0.9em;
+
     cursor: pointer;
 
+    font-size: 0.8em !important;
     color: rgba(10,10,10,.4);
 
     -webkit-transition: color .4s;

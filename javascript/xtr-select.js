@@ -135,11 +135,14 @@ function XtrDivSelect(id,kwargs){
 								if(XtrGraficoUtil.isset(kwargs.circulo.tag) ? kwargs.circulo.tag == "svg" : false){
 									circle = XtrGraficoUtil.parseSVG(circle,15,15);
 									circle = new XMLSerializer().serializeToString(circle);
-									circulo = document.createElement("img");
+									circulo = document.createElement("object");
+									circulo.type = "image/svg+xml";
+									circulo.height = "100%";
+									circulo.width = "100%";
 									circulo.className = "svg";
 									circulo.style.width = "100%";
 									circulo.style.height = "100%";
-									circulo.src = 'data:image/svg+xml;base64,'+window.btoa(circle);	
+									circulo.data = 'data:image/svg+xml;base64,'+window.btoa(circle);	
 								}
 								else{
 									var containerTemp;
@@ -183,7 +186,6 @@ function XtrDivSelect(id,kwargs){
 	/////////////////////////
 	//EVENTOS DE CONTRUÇÃO //
 	/////////////////////////
-		select.addEventListener("DOMNodeInserted",setWidth);
 
 		document.addEventListener("click",function(event){
 			var select;
@@ -194,7 +196,13 @@ function XtrDivSelect(id,kwargs){
 				fecharExceto();
 			}
 		});
+		function setWidthEvent(){
+			setWidth();
+			this.removeEventListener("click",setWidthEvent);
+		}
 
+		select.addEventListener("click",setWidthEvent);
+		
 	    select.addEventListener("click",function(event){
 	    	var clicado;
 	    	var select;
@@ -293,6 +301,14 @@ function XtrDivSelect(id,kwargs){
 		select.unselectAll = function(){
 			desselecionarTodos(this);
 		};
+		XtrDivSelect.selecionar = function(select,value){
+			var opcoes,opcao;
+
+			opcao = select.querySelector(".opcao[data-value='"+value+"']");
+
+			selecionar(opcao);
+		};
+
 		select.unselect = desselecionar;
 		select.select = selecionar;
 
@@ -335,8 +351,12 @@ function XtrDivSelect(id,kwargs){
 		}
 		function selecionar(opcao){
 			var select;
+			var input;
+			var titulo;
 
 			select = opcao.parentNode.parentNode;
+			input = select.querySelector("input[type='hidden']");
+			titulo = select.querySelector('.titulo');
 
 			desselecionarTodos(select);
 

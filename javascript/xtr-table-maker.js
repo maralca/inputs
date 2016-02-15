@@ -281,7 +281,12 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        );
 	    }
 	    function generateAction(isActive,mesclar){
-	       var selectedCompositeData
+	       	var selectedCompositeData;
+	       	var compositeData;
+
+	       	compositeData = compositeDataHandler.previous().current();
+
+	       	compositeDataHandler.override(compositeData);
 
 	        selectedCompositeData = makeSelectedCompositeData(isActive,mesclar);
 	        
