@@ -29,7 +29,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    splits = ['Qtd de','Qtd'];
 
-	    rotulos = compositeData.rotulos; 
+	    rotulos = compositeData.rotulosFormatados; 
 	    series = compositeData.series;
 
 	    organize();
@@ -115,7 +115,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 			polados = compositeData.polados;
 
-            rotulos = compositeData.rotulos;          
+            rotulos = compositeData.rotulosFormatados;          
 
             alvo = context.getAttribute("data-ponto-interpolacao");
 
@@ -194,7 +194,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	        alvo = context.getAttribute("data-ponto-extrapolacao");
 
-	        rotulos = compositeData.rotulos;
+	        rotulos = compositeData.rotulosFormatados;
 	        inconsistencias = compositeData.inconsistencias;
 
 	        series = compositeData.series;
@@ -332,7 +332,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        compositeData = dataHandler.search("tabela",0);
 	        compositeData = XtrGraficoUtil.clone(compositeData);
 	        series = compositeData.series;
-	        rotulos = compositeData.rotulos;
+	        rotulos = compositeData.rotulosFormatados;
 
 	        removeColumnIndexes = [];
 	        removeLineIndexes = [];
@@ -460,7 +460,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
         	var rotulos,rotulo;
 
-        	rotulos = compositeData.rotulos;
+        	rotulos = compositeData.rotulosFormatados;
 
             seletores = xtrTable.getElements("[data-colunaTitulo][data-colunaSeletor]");
 
@@ -484,18 +484,23 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
         	var formatados;
 
         	var rotulos;
+        	var rotulosFormatados;
 
         	var Ord;
         	var order,cloneOrder;
 
         	rotulos = compositeData.rotulos;
+        	rotulosFormatados = compositeData.rotulosFormatados;
         	series = compositeData.series;
 
-        	order = [];
         	rotulos.sort(function(a,b){
         		Ord = XtrGraficoUtil.compare(b,a);
         		order.push(Ord);
         		return Ord;
+        	});
+        	cloneOrder = XtrGraficoUtil.clone(order);
+        	rotulosFormatados.sort(function(a,b){
+        		return cloneOrder.shift();
         	});
         	for(serieIndex = 0; series.length > serieIndex; serieIndex++){
         		serie = series[serieIndex];
