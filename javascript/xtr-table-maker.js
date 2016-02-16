@@ -493,6 +493,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
         	rotulosFormatados = compositeData.rotulosFormatados;
         	series = compositeData.series;
 
+        	order = [];
         	rotulos.sort(function(a,b){
         		Ord = XtrGraficoUtil.compare(b,a);
         		order.push(Ord);
@@ -871,10 +872,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        	"colspan": 222,
 	        	"type": "th"
 	        };
-	        dojoTipoAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tipo,"tipos"); 
-	        dojoTemaAtual = SuperModule().getDojoObject(compositeDataOnCurrentChart.tema,"temas"); 
+	        dojoTipoAtual = new SuperModule();
+	        dojoTemaAtual = new SuperModule();
+
+	        dojoTipoAtual = dojoTipoAtual.getDojoObject(compositeDataOnCurrentChart.tipo,"tipos"); 
+	        dojoTemaAtual = dojoTemaAtual.getDojoObject(compositeDataOnCurrentChart.tema,"temas"); 
 		    if(mesclando){		    	
-	            dojoFusoes = SuperModule().getDojo("fusoes");
+	            dojoFusoes = new SuperModule();
+	            dojoFusoes = dojoFusoes.getDojo("fusoes");
 	            dojoTipos = dojoTipos.filter(function(dojoTipo){
 	                if(!XtrGraficoUtil.isset(dojoTipoAtual))
 	                	return false;
@@ -922,6 +927,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            "source": dojoTipos,
 	            "value": tipo,
 	            "search": true,
+	            "id": tableId+"_tipo",
 	            "data-id": "tipo&tema",
 	            "property": {
 	            	"content": "traducao.portuguesBr",
@@ -937,6 +943,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        	"source": dojoTemas,
 	        	"value": tema,
 	            "search": true,
+	            "id": tableId+"_tema",
 	            "data-id": "tipo&tema",
 	            "property": {
 	            	"content": "alias",
@@ -952,7 +959,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    selectTipo = XtrDivSelect(xtrTable.getId()+"_tipo",selectTipostObj);
 		    selectTema = XtrDivSelect(xtrTable.getId()+"_tema",selectTemasObj);
 
-		    selectTipo.selecionarPorValor(compositeDataHandler.current().tipo);
+		    if(!mesclando){
+		   		selectTipo.selecionarPorValor(compositeDataHandler.current().tipo);
+		    }
 		    selectTema.selecionarPorValor(compositeDataHandler.current().tema || xtrGrafico.Default.tema);
 
 		    div = document.createElement("div");
