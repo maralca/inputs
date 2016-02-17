@@ -16,6 +16,12 @@ function XtrDivSelect(id,kwargs){
 				var opcao,opcaoEscolhida;
 					var circulo;
 				var nenhum;
+
+		var onclick;
+		var onmouseover;
+		var onmouseout;
+		var onchange;
+
 	///////////////
 	//CONSTRUÇÃO //
 	///////////////
@@ -63,7 +69,7 @@ function XtrDivSelect(id,kwargs){
 		if(XtrGraficoUtil.isobj(kwargs)){
 			for(property in kwargs){
 				if(exceptions.indexOf(property) < 0){
-					value = kwargs[property];
+					var value = kwargs[property];
 					if(XtrGraficoUtil.isobj(value)){
 						for(innerProperty in value){
 							innerValue = value[innerProperty];
@@ -83,15 +89,6 @@ function XtrDivSelect(id,kwargs){
 			}
 			if(XtrGraficoUtil.isset(kwargs["data-value"])){
 				primeiraOpcao = kwargs["data-value"];
-			}
-			if(XtrGraficoUtil.isobj(kwargs.addEventListener)){
-				fn = kwargs.addEventListener.fn;
-				type = kwargs.addEventListener.type;
-				select.addEventListener(type,function(event){
-					if(XtrGraficoUtil.iscallable(fn)){
-						fn(this,event);
-					}
-				});
 			}
 			if(XtrGraficoUtil.isset(kwargs.title)){
 				titulo.innerHTML = kwargs.title;
@@ -175,6 +172,24 @@ function XtrDivSelect(id,kwargs){
 					}				
 				}
 			}
+
+			onchange = kwargs.onchange || kwargs.change || function(){};
+			onclick = kwargs.onclick || kwargs.click;
+			onmouseover = kwargs.onmouseover || kwargs.mouseover || kwargs.hover;
+			onmouseout = kwargs.onmouseout || kwargs.mouseout;
+
+			select.onchange = onchange;
+
+			if(onclick){
+				select.addEventListener("click",onclick);
+			}
+			if(onmouseover){
+				select.addEventListener("mouseover",onmouseover);
+			}
+			if(onmouseout){
+				select.addEventListener("mouseout",onmouseout);
+			}
+
 		}
 		if(opcaoEscolhida instanceof Node)
 			selecionar(opcaoEscolhida);
@@ -395,6 +410,8 @@ function XtrDivSelect(id,kwargs){
 			opcao.className += " selecionado";
 
 			input.value = opcao.getAttribute("data-value");
+			select.value = input.value;
+			select.onchange();			
 
 			titulo.innerHTML = opcao.innerHTML;
 

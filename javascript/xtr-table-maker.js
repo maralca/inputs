@@ -115,7 +115,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 			polados = compositeData.polados;
 
-            rotulos = compositeData.rotulosFormatados;          
+            rotulosFormatados = compositeData.rotulosFormatados;          
+            rotulos = compositeData.rotulos;          
 
             alvo = context.getAttribute("data-ponto-interpolacao");
 
@@ -137,8 +138,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                     inconsistencia = valores[alvo+1];
                 }
 
-                rotulo1 = rotulos[alvo];
-                rotulo2 = rotulos[alvo-1];
+                rotulo1 = rotulosFormatados[alvo];
+                rotulo2 = rotulosFormatados[alvo-1];
                 
                 temIncosistenciaNaSerie = XtrGraficoUtil.hasInObj(inconsistencias,'serieIndex',serieIndex);
 
@@ -163,8 +164,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                 	"value": novoPonto.x
                 });
             };
-            if(series.length > 0)
+            if(series.length > 0){
                 rotulos.splice(alvo,0,novoPonto.x); 
+                rotulosFormatados.splice(alvo,0,novoPonto.x); 
+            }
 
             paginaAtual = paginacaoScript[tableId].getPaginaAtual();
 
@@ -194,7 +197,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	        alvo = context.getAttribute("data-ponto-extrapolacao");
 
-	        rotulos = compositeData.rotulosFormatados;
+	        rotulosFormatados = compositeData.rotulosFormatados;
+	        rotulos = compositeData.rotulos;
 	        inconsistencias = compositeData.inconsistencias;
 
 	        series = compositeData.series;
@@ -212,7 +216,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            formatados = serie.dadosFormatados;
 
 	            inconsistencia = valores[alvo];
-	            rotulo = rotulos[alvo];
+	            rotulo = rotulosFormatados[alvo];
 
 	            temIncosistenciaNaSerie = XtrGraficoUtil.hasInObj(inconsistencias,'serie',serieIndex);
 	            temIncosistenciaNoRotulo = XtrGraficoUtil.hasInObj(inconsistencias,'rotulo',rotulo);
@@ -234,6 +238,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        };
 	        if(series.length > 0){
 	            rotulos.splice(alvo,0,novoPonto.x); 
+	            rotulosFormatados.splice(alvo,0,novoPonto.x); 
 	        }
 
 	        mesclarCustomizar(mesclando);
@@ -394,7 +399,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        if(rotulos.length < 1){
 
 	        	msg = isActive ? "deve estar selecionado" : "não deve estar selecionado";
-	        	msg = "Pelo menos um ponto " + msg;
+	        	msg = "Pelo menos uma coluna " + msg;
 	        	console.log(msg);
 
 				msgerro += msg;
@@ -403,7 +408,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        if(series.length < 1){
 
 	        	msg = isActive ? "deve estar selecionada" : "não deve estar selecionada";
-	        	msg = "Pelo menos uma serie " + msg;
+	        	msg = "Pelo menos uma linha " + msg;
 	        	console.log(msg);
 
 				msgerro += msg;
@@ -411,7 +416,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        }
 	        if("markersonly" == compositeData.tipo && series.length < 2){
 
-	        	msg = "Grafico de Disperão deve ter pelo menos duas series selecionadas";
+	        	msg = "Grafico de Disperão deve ter pelo menos duas colunas selecionadas";
 	        	console.log(msg);
 
 				msgerro += msg;
@@ -419,14 +424,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	       	}
 	       	if("bubles" == compositeData.tipo && series.length < 2){
 
-	       		msg = "Grafico de Bolhas deve ter pelo menos duas series selecionadas";
+	       		msg = "Grafico de Bolhas deve ter pelo menos duas linhas selecionadas";
 	       		console.log(msg);
 
 	       		msgerro += msg;
 	       		msgerro += "\n";       		
 	       	}
 	       	if(["lines","stackedlines"].indexOf(compositeData.tipo) >= 0 && rotulos.length < 2){
-	       		msg = "Grafico de Linhas deve ter pelo menos dois pontos selecionados";
+	       		msg = "Grafico de Linhas deve ter pelo menos duas colunas selecionados";
 	       		console.log(msg);
 
 	       		msgerro += msg;
@@ -434,7 +439,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	       	}
 	        if(compositeData.tipo == ""){
 
-	        	msg = "Algum tipo deve ser selecionado";
+	        	msg = "Nenhum tipo foi selecionado";
 	        	console.log(msg);
 
 	        	msgerro += msg;
@@ -937,7 +942,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	           		"source": ICONES_TIPOS,
 	           		"on": "variavel"
 	           	},
-	            "title": "Tipo de Grafico"
+	            "title": "Tipo de Gráfico"
 	        };
 	        selectTemasObj = {	        	
 	        	"source": dojoTemas,
@@ -949,12 +954,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            	"content": "alias",
 	           	 	"value": "variavel"
 	           	},
+	           	"onchange": refreshTheme,
 	           	"circulo":{
 	           		"source": ICONES_TEMAS,
 	           		"on": "variavel",	           		
 	           		"tag": "svg"
 	           	},
-	            "title": "Tema de Grafico"
+	            "title": "Tema de Gráfico"
 		    };
 		    selectTipo = XtrDivSelect(xtrTable.getId()+"_tipo",selectTipostObj);
 		    selectTema = XtrDivSelect(xtrTable.getId()+"_tema",selectTemasObj);
