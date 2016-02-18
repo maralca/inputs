@@ -29,7 +29,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    splits = ['Qtd de','Qtd'];
 
-	    rotulos = compositeData.rotulosFormatados; 
+	    rotulos = compositeData.rotulosFormatados;
+	    if(compositeData.dado == "geografica")
+		    rotulos = compositeData.rotulos;
+
 	    series = compositeData.series;
 
 	    organize();
@@ -664,6 +667,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                	}
 		            }
 		        };
+
 		        extrapolateButtonObj = {
 				    "content": "e",
 				    "data-ponto-extrapolacao": rotuloIndex,                               
@@ -694,7 +698,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
     			    }
 		        }
 		        else{
-		        	div = XtrButao(selectButtonObj);
+		        	div.appendChild(XtrButao(selectButtonObj));
 		        }
 		        
 		        colunaObj = {
@@ -761,12 +765,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        }
 
 		        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoObj));
-		    };    
-		}
-		function tooltips(){
-			var xtrTooltip;
+		    };
 
-			xtrTooltip = new XtrTooltip("table_tooltip","baixo");
+		    var xtrTooltip = new XtrTooltip("table_tooltip","baixo");
 			xtrTooltip.addTrigger("[data-ponto-extrapolacao]",{
 				content: "Extrapolar"
 			});
@@ -1024,13 +1025,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
 		}
 		function make(evaluate){
-			titulos(true);
+			titulos(compositeData.dado == "cronologica");
 			paginadores();
 			conteudo();
-			tooltips();
 			restante();
 			selects();
 			butoes();
+
 			if(XtrGraficoUtil.isset(evaluate)){
 				evalInconsistencias();
 				evalPolados();
