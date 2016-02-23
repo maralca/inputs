@@ -260,14 +260,25 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        targetIndex = eval(targetIndex);
 
 	        var cor = !clicado ? "rgba(34, 36, 38, 0.20)" : "";
-
-	        objStyle = {
-	        	["data-"+acao+"Ativa"]: clicado,
-	        	"style": {
-	        		"background": cor,
-	        		"color": cor
-	        	}
-	        };
+	        
+	        if(acao == "coluna"){
+		        objStyle = {
+		        	"data-colunaAtiva": clicado,
+		        	"style": {
+		        		"background": cor,
+		        		"color": cor
+		        	}
+		        };
+	    	}
+	        else{
+	        	objStyle = {
+			        "data-linhaAtiva": clicado,
+			        "style": {
+			        	"background": cor,
+			        	"color": cor
+			        }
+			    };
+	        }
 
 	        xtrTable.changeAttr('td[data-'+acao+'Index="'+targetIndex+'"]',
 	            objStyle,
