@@ -2,7 +2,6 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	///////////////////////////
 	//VARIAVEIS DE INSTANCIA //
 	///////////////////////////
-	    var splits;
 
 	    var xtrTable;
 
@@ -27,7 +26,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
     	paginacaoScript = {};
 
-	    splits = ['Qtd de','Qtd'];
+	    compositeData = XtrGraficoUtil.clone(compositeData);
 
 	    rotulos = compositeData.rotulosFormatados;
 	    if(compositeData.dado == "geografica")
@@ -321,9 +320,16 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 		        }
 		        else{
-		            compositeDataHandler.override(selectedCompositeData)
+		        	
+		            if(['columns','bars','column','bar'].indexOf(selectedCompositeData.tipo) >= 0 && selectedCompositeData.series.length > 1){
+		            	selectedCompositeData.tipo = "clustered"+selectedCompositeData.tipo;
+		            }
+		            
+		            compositeDataHandler.override(selectedCompositeData);
+
 		            xtrTab.mostrarAtivarChamar('tab_exibir', function(){                      
 		                generateWithLoading(compositeDataHandler.current());
+		                refreshType();
 		            });
 		        }
 		    }
@@ -742,7 +748,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 		        valores = serie.dadosFormatados;
 		        nome = serie.titulo;
-		        nome = XtrGraficoUtil.splitter(splits,nome,1)
+		        //nome = XtrGraficoUtil.splitter(['Qtd de','Qtd'],nome,1)
 		        nome = nome.replace(" - "," ");
 		        nome = nome.replace("-"," ");
 
