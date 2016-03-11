@@ -17,6 +17,10 @@
   -webkit-flex-direction: row;
   flex-direction: row;
 }
+[class*="xtr grupo"].vertical {
+  -webkit-flex-direction: column;
+  flex-direction: column;
+}
 [class*="xtr grupo"][class*="igualmente distribuido"] [class*="xtr butao"],
 [class*="xtr grupo"][class*="igualmente distribuido"] [class*="xtr select"] {
   -webkit-flex-grow: 1;

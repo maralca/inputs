@@ -17,16 +17,18 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    var div;
 
+	    var inverted;
+
 	    var paginacaoScript;
     ///////////////
     //CONSTRUCAO //
     ///////////////
 
+    	var inverted = true;
+
     	xtrTable = new XtrTable(tableId);
 
     	paginacaoScript = {};
-
-	    compositeData = XtrGraficoUtil.clone(compositeData);
 
 	    rotulos = compositeData.rotulosFormatados;
 	    if(compositeData.dado == "geografica")
@@ -46,7 +48,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classExtrapolate = "tamanho metade";
 	    classInterpolate = "tamanho metade";
 	    classPaginador = "xtr grupo liso linear centralizado padding dobrado arredondado espacado";
-	    classGroupButtons = "xtr grupo linear centralizado desigualmente distribuido";
+	    classGroupButtons = "xtr grupo centralizado desigualmente distribuido";
+	    classGroupButtons += inverted ? " lienar" : " linear";
 	    classSelects = "xtr grupo linear centralizado espacado igualmente distribuido";
 	    classButtons = "xtr grupo linear centralizado espacado igualmente distribuido arredondado";
 	    classInconsistenciaLegend = "xtr alert amarelo";
@@ -59,11 +62,20 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    };
 	    styleColumn = {};
 	    styleColumnPaginador = {};
-	    styleColumnGroupButtons = {};
-	    styleColumnTitleRotulo = {}; 
+	    styleColumnTitleRotulo = {
+	    	
+	    }; 
 	    styleColumnTitleSerie = {
-	    	"text-align": "right"
+	    	"height": "100%"
 	    };
+	    styleTitleSerie = {
+	    	"height": "94%",
+	    	"-webkit-flex-direction": "column",
+	    	"flex-direction": "column",
+	    	//"-webkit-justify-content":"flex-end",
+	    	//"justify-content":"flex-end",
+	    	"text-align":"right"
+	    }
 	    styleSelects = {
 
 	    }
@@ -382,7 +394,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	            removeLineIndex = linha.getAttribute("data-linhaIndex");
 	            removeLineIndexes.push(removeLineIndex);
 	        };
-
+	        console.log(removeLineIndexes);
 	        console.info("selecao removeu",removeLineIndexes.length,"SERIES");
 	        for(indexSeeker = 0; removeLineIndexes.length > indexSeeker; indexSeeker++){
 	            removeLineIndex = removeLineIndexes[indexSeeker];
@@ -622,7 +634,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    xtrTable.appendIn(linhaObj,colunaObj,div);
 
 		    linhaObj = {
-		        "index": series.length+5,
+		        "index": series.length+55,
 		        "foot": true
 		    };
 		    colunaObj = {
@@ -639,7 +651,6 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    xtrTable.appendIn(linhaObj,colunaObj,div);   
 		}
 	    function titulos(comPolacao){
-
 		    linhaObj = {
 		        "index": 1,
 		        "head": true
@@ -659,20 +670,19 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				div.setAttribute("class",classGroupButtons);
 
 		        rotulo = rotulos[rotuloIndex];
-
 		        selectButtonObj = {
 		            "content": rotulo,
 		            "color": "default",
 		            "class": classRotulo,
 		            "data-clicado":false,
-		            "data-target-colunaIndex":rotuloIndex,
+		            "data-target-linhaIndex":rotuloIndex,
 		            "onclick":function(){
 		            	var clicado;
 
 		            	clicado = this.getAttribute("data-clicado");
 						clicado = eval(clicado);	
 
-		            	selectorAction('coluna',this); 
+		            	selectorAction('linha',this); 
 
 				        this.setAttribute("data-clicado",!clicado);
 
@@ -717,30 +727,47 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        else{
 		        	div.appendChild(XtrButao(selectButtonObj));
 		        }
-		        
-		        colunaObj = {
-		            "index":rotuloIndex+1,
-		            "type":"th",
-		            "data-colunaIndex": rotuloIndex,
-		            "width": widthColumnTitleRotulo,
-		            "style": styleColumnTitleRotulo,
-		    		"data-colunaTitulo": true,
-		    		"data-colunaSeletor": true,
-		            "data-linhaIndex": 0,
-		            "data-colunaAtiva": true,
-		            "data-linhaAtiva": true
-		        };
+
+		        if(inverted){
+			        linhaObj = {
+			        	"index": rotuloIndex+2,
+			        	"body": true
+			    	};
+			    }
+			    else{
+			    	linhaObj = {
+			        	"index": 1,
+			        	"head": true
+			    	}
+			    }
+		        if(inverted){
+		        	colunaObj = {
+			            "index": inverted ? 1 : rotuloIndex+1,
+			            "type":"th",
+			            "width": widthColumnTitleRotulo,
+			            "style": styleColumnTitleRotulo,
+			    		"data-colunaTitulo": true,
+			    		"data-colunaSeletor": true,
+			            "data-colunaAtiva": true,
+			            "data-linhaAtiva": true
+			        };
+		        }
+		        else{
+			        colunaObj = {
+			            "index": inverted ? 1 : rotuloIndex+1,
+			            "type":"th",
+			            "data-colunaIndex": rotuloIndex,
+			            "data-linhaIndex": 0,
+			            "width": widthColumnTitleRotulo,
+			            "style": styleColumnTitleRotulo,
+			    		"data-colunaTitulo": true,
+			    		"data-colunaSeletor": true,
+			            "data-colunaAtiva": true,
+			            "data-linhaAtiva": true
+			        };
+			    }
 
 		        xtrTable.appendIn(linhaObj,colunaObj,div);
-			};
-
-			colunaObj = {
-				"index":0,
-				"type": "th",
-	    		"data-linhaTitulo": true,
-	    		"data-linhaSeletor": true,
-				"width": widthColumnTitleSerie,
-				"style": styleColumnTitleSerie
 			};
 
 			for(serieIndex = 0; series.length > serieIndex; serieIndex++){
@@ -751,24 +778,47 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        //nome = XtrGraficoUtil.splitter(['Qtd de','Qtd'],nome,1)
 		        nome = nome.replace(" - "," ");
 		        nome = nome.replace("-"," ");
-
+		        if(inverted){
+		        	colunaObj = {
+						"index": rotuloIndex,
+						"data-colunaIndex": serieIndex,
+				        "data-linhaIndex": 1,
+						"type": "th",
+			    		"data-linhaTitulo": true,
+			    		"data-linhaSeletor": true,
+						"width": widthColumnTitleSerie,
+						"style": styleColumnTitleSerie
+					};			            
+		        }
+		        else{
+		        	colunaObj = {
+						"index": 0,
+						"type": "th",
+			    		"data-linhaTitulo": true,
+			    		"data-linhaSeletor": true,
+						"width": widthColumnTitleSerie,
+						"style": styleColumnTitleSerie
+					}
+		        }
+				
 		        linhaObj = {
-		            "index": serieIndex+2,
+		            "index": inverted ? 1 : serieIndex+2,
 		            "body": true
 		        };
-		        butaoObj = {
+	        	butaoObj = {
 		            "content": nome,
 		            "color": "default",
 		            "class": classSerie,
+		            "style": styleTitleSerie,
 		            "data-clicado":false,
-		            "data-target-linhaIndex":serieIndex,
+		            "data-target-colunaIndex":serieIndex,
 		            "onclick":function(){
 		            	var clicado;
 
 		            	clicado = this.getAttribute("data-clicado");
 						clicado = eval(clicado);	
 
-	                	selectorAction('linha',this);
+	                	selectorAction('coluna',this);
 
 				        this.setAttribute("data-clicado",!clicado);
 
@@ -779,7 +829,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	                		this.mudarCor("inverse");
 	                	}
 		            }
-		        }
+		        };
 
 		        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoObj));
 		    };
@@ -793,27 +843,23 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			});
 		}
 		function conteudo(){
-		    colunaObj = {
-		        "index":0,
-		        "type":"th",
-		        "style": styleColumn
-		    };
 		    for(serieIndex = 0; series.length > serieIndex; serieIndex++){
 		        serie = series[serieIndex];
 
 		        valores = serie.dadosFormatados;
-		        linhaObj = {
-		            "index": serieIndex+2,
-		            "body": true
-		        };
 		        for(valorIndex = 0; valores.length > valorIndex; valorIndex++){
-		            valor = valores[valorIndex]; 
+		            valor = valores[valorIndex];
+
+			        linhaObj = {
+			            "index": inverted ? valorIndex+2 : serieIndex+2,
+			            "body": true
+			        };
 		            colunaObj = {
-		                "index":valorIndex+1,
+		                "index": inverted ? serieIndex : valorIndex+1,
 		                "type":"td",
 		                "width": widthColumn,
-		                "data-colunaIndex": valorIndex,
-		                "data-linhaIndex": serieIndex,
+		                "data-colunaIndex": inverted ? serieIndex : valorIndex,
+		                "data-linhaIndex": inverted ? valorIndex : serieIndex,
 		                "data-colunaAtiva": true,
 		                "data-linhaAtiva": true
 		            };
@@ -822,32 +868,28 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    }
 		}
 		function restante(){
-			restante = rotulos.length;
-			colunaObj = {
-	            "index": rotulos.length,
-	            "data-colunaIndex": rotulos.length,
-	            "data-colunaAtiva": true,
-	            "data-linhaAtiva": true,
-	            "width": widthColumn
-	        };
-			while(restante % chunkSize != 0){
-				var serie;
-				var serieIndex;
-				for(serieIndex = 0; series.length >= serieIndex; serieIndex++){
-					serie = series[serieIndex];
-					colunaObj.linhaIndex = serieIndex;
-					colunaObj.type = serieIndex==0 ? "th" : "td";
-					linhaObj = {
-						"index": serieIndex+1,
-			            "data-colunaIndex": rotulos.length,
-			            "data-linhaIndex": serieIndex,
+			var resto = inverted ? series.length : rotulos.length;
+			
+			while(resto % chunkSize != 0){
+				var index;
+				var maxIndex = inverted ? rotulos.length : series.length;
+				for(index = 0; maxIndex >= index; index++){
+					colunaObj = {
+						"type": index==0 ? "th" : "td",
+			            "index": inverted ? series.length : rotulos.length,
+			            "data-colunaIndex": inverted ? series.length : rotulos.length,
+			            "data-linhaIndex": index > 0 ? index-1 : index,
 			            "data-colunaAtiva": true,
-			            "data-linhaAtiva": true
+			            "data-linhaAtiva": true,
+			            "width": widthColumn
+			        };
+					linhaObj = {
+						"index": index+1
 					};
 
 					xtrTable.appendIn(linhaObj,colunaObj,"");
 				};
-				restante++;
+				resto++;
 			}
 		}
 		function selects(){
@@ -886,7 +928,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        }); 
 
 	        linhaObj = {
-	        	"index": series.length + 3,
+	        	"index": series.length + 33,
 	        	"foot": true
 	        };
 	        colunaObj = {
@@ -1004,7 +1046,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		}
 		function butoes(){
 			linhaObj = {
-				"index": series.length+4,
+				"index": series.length+34,
 				"foot": true
 			}
 			colunaObj = {
