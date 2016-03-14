@@ -40,7 +40,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    mesclando = XtrGraficoUtil.isset(mesclando) ? mesclando : false;
 
-	    tableName = mesclando ? "Mesclando" : "Criando";
+	    tableName = mesclando ? "MECLAR GRAFICO" : "CRIAR GRAFICO";
 
 	    classTableName = mesclando ? "xtr alert rosa" : "xtr alert ciano";
 	    classSerie = "";
@@ -48,8 +48,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classExtrapolate = "tamanho metade";
 	    classInterpolate = "tamanho metade";
 	    classPaginador = "xtr grupo liso linear centralizado padding dobrado arredondado espacado";
-	    classGroupButtons = "xtr grupo centralizado desigualmente distribuido";
-	    classGroupButtons += inverted ? " lienar" : " linear";
+	    classGroupButtons = "xtr grupo linear centralizado desigualmente distribuido";
 	    classSelects = "xtr grupo linear centralizado espacado igualmente distribuido";
 	    classButtons = "xtr grupo linear centralizado espacado igualmente distribuido arredondado";
 	    classInconsistenciaLegend = "xtr alert amarelo";
@@ -58,22 +57,31 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	    styleTableName = {
 	    	"opacity": ".65",
-	    	"text-align": "center"
+	    	"text-align": "left",
+	    	"padding-left": "0.6em"
 	    };
 	    styleColumn = {};
 	    styleColumnPaginador = {};
+	    styleGroupButtons = {
+	    	"position": "relative"
+	    };
+	    styleExtrapolate = {};
+	    styleInterpolate = styleExtrapolate;
+	    styleRotulo = {};
+
 	    styleColumnTitleRotulo = {
 	    	
 	    }; 
 	    styleColumnTitleSerie = {
-	    	"height": "100%"
+	    	"height": "100%",
+	    	"position": "relative"
 	    };
 	    styleTitleSerie = {
-	    	"height": "94%",
+	    	"position": "absolute",
+	    	"top": "0px",
+	    	"height": "calc(100% - 0.6em)",
 	    	"-webkit-flex-direction": "column",
 	    	"flex-direction": "column",
-	    	//"-webkit-justify-content":"flex-end",
-	    	//"justify-content":"flex-end",
 	    	"text-align":"right"
 	    }
 	    styleSelects = {
@@ -346,20 +354,26 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        }
 		    }
 	    }
+	    function getColumnSelector(isActive){
+	    	return 'tbody tr:first-of-type td[data-colunaAtiva="'+isActive+'"]:not([data-colunaRestante])';
+	    }
+	    function getLineSelector(isActive){
+	    	return 'tbody tr td:first-of-type[data-linhaAtiva="'+isActive+'"]:not([data-linhaRestante])';
+	    }
 	    function makeSelectedCompositeData(isActive,mesclar){
+	        var linesToRemove,columnsToRemove,removeLinesAttr;
+	        var seriesToRemove,pointsToRemove,removeSeriesAttr;
+	        var removeColumnSelector,removeColumnAttr;
+	        var removeLineSelector,removeLineAttr;
 
-	        var colunas,coluna;
-	        var colunaIndex;
+	        var hasSelected;
 
-	        var linhas,linha;
-	        var linhaIndex;
-
-	        var removeColumnIndexes,removeColumnIndex;
-	        var removeLineIndexes,removeLineIndex;
-
-	        var indexSeeker;
+	        var toRemove;
+	        var toRemoveIndex;
+	        var index;
 
 	        var series,serie;
+	        var serieIndex;
 	        var rotulos,rotulo;
 
 	        var selectTema,selectTipo;
@@ -369,55 +383,52 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        compositeData = dataHandler.search("tabela",0);
 	        compositeData = XtrGraficoUtil.clone(compositeData);
 	        series = compositeData.series;
-	        rotulos = compositeData.rotulosFormatados;
+	        rotulosFormatados = compositeData.rotulosFormatados;
+	        rotulos = compositeData.rotulos;
 
 	        removeColumnIndexes = [];
 	        removeLineIndexes = [];
 
 	        isActive = !isActive;
 
-	        console.info("selecionando Linhas e colunas",isActive);
-	        colunas = xtrTable.getElements('tbody tr:first-child [data-colunaAtiva="'+isActive+'"]');
-	        colunasRef = xtrTable.getElements('tbody tr:first-child [data-colunaAtiva]');
-	        var alguma = colunasRef.length != colunas.length;
-	        
-	        for(colunaIndex = 0; colunas.length > colunaIndex && alguma; colunaIndex++){
-	            coluna = colunas[colunaIndex];
-	            removeColumnIndex = coluna.getAttribute("data-colunaIndex");
-	            if(removeColumnIndexes.indexOf(removeColumnIndex) < 0){
-	            	removeColumnIndexes.push(removeColumnIndex);
-	            }
-	        };
-	        linhas = xtrTable.getElements('tbody tr td:first-of-type[data-linhaAtiva="'+isActive+'"]');
-	        for(linhaIndex = 0; linhas.length > linhaIndex; linhaIndex++){
-	            linha = linhas[linhaIndex];
-	            removeLineIndex = linha.getAttribute("data-linhaIndex");
-	            removeLineIndexes.push(removeLineIndex);
-	        };
-	        console.log(removeLineIndexes);
-	        console.info("selecao removeu",removeLineIndexes.length,"SERIES");
-	        for(indexSeeker = 0; removeLineIndexes.length > indexSeeker; indexSeeker++){
-	            removeLineIndex = removeLineIndexes[indexSeeker];
-	            removeLineIndex = removeLineIndex - indexSeeker;
-	            serie = series.splice(removeLineIndex,1)[0];
-	            console.info("=>","(",indexSeeker+1,")",serie.titulo);
-	        };
-	        console.info("selecao removeu",removeColumnIndexes.length,"PONTOS");
-	        for(indexSeeker = 0; removeColumnIndexes.length > indexSeeker; indexSeeker++){
-	            removeColumnIndex = removeColumnIndexes[indexSeeker];
-	            removeColumnIndex = removeColumnIndex - indexSeeker;
-	            
-	            for(serieIndex = 0; series.length > serieIndex; serieIndex++){
-	                serie = series[serieIndex];
-	                dados = serie.dados;
-	                formatados = serie.dadosFormatados;
+	        removeColumnSelector = getColumnSelector(isActive);
+	        removeColumnAttr = "data-colunaIndex";
+			removeLineSelector = getLineSelector(isActive);
+			removeLineAttr = "data-linhaIndex";
 
-	                dados.splice(removeColumnIndex,1); 
-	                formatados.splice(removeColumnIndex,1); 
-	            };
-	            rotulo = rotulos.splice(removeColumnIndex,1);
-	            console.info("=>","(",indexSeeker+1,")",rotulo);
-	        };
+			linesToRemove = xtrTable.getElements(removeLineSelector);
+			columnsToRemove = xtrTable.getElements(removeColumnSelector);
+			seriesToRemove = inverted ? columnsToRemove : linesToRemove;
+			pointsToRemove = inverted ? linesToRemove : columnsToRemove;
+			removeLinesAttr = inverted ? removeColumnAttr : removeLineAttr;
+			removeSeriesAttr = inverted ? removeLineAttr : removeColumnAttr;
+
+			hasSelected = series.length != seriesToRemove.length;
+
+			for(toRemoveIndex = 0; seriesToRemove.length > toRemoveIndex && hasSelected; toRemoveIndex++){
+				toRemove = seriesToRemove[toRemoveIndex];				
+				index = toRemove.getAttribute(removeLinesAttr);
+				serie = series.splice(index,1);
+				serie = serie[0];
+				console.log("(",index,")","Serie",serie.titulo,"foi removida");
+			}
+
+			hasSelected = rotulos.length != pointsToRemove.length;
+
+			for(toRemoveIndex = 0; pointsToRemove.length > toRemoveIndex && hasSelected; toRemoveIndex++){
+				toRemove = pointsToRemove[toRemoveIndex];
+				index = toRemove.getAttribute(removeColumnAttr);
+				for(serieIndex = 0; series.length > serieIndex; serieIndex++){
+					serie = series[serieIndex];
+					serie.dados.splice(index,1);
+					serie.dadosFormatados.splice(index,1);
+				}
+				rotulos.splice(index,1);
+				rotulo = rotulosFormatados.splice(index,1);
+				rotulo = rotulo[0];
+				console.log("(",index,")","Rotulo",rotulo,"foi removido");
+			}
+	        
 	        if(!mesclar){
 	            selectTema = document.getElementById("input_"+xtrTable.getId()+"_tema");
 	            compositeData.tema = selectTema.value;
@@ -430,8 +441,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        compositeData.tipo = selectTipo.value;
 	        if(rotulos.length < 1){
 
-	        	msg = isActive ? "deve estar selecionado" : "não deve estar selecionado";
-	        	msg = "Pelo menos uma coluna " + msg;
+	        	msg = isActive ? " deve estar selecionado" : " não deve estar selecionado";
+	        	msg = "Pelo menos uma " + colunaLinha + msg;
 	        	console.log(msg);
 
 				msgerro += msg;
@@ -439,8 +450,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    	}
 	        if(series.length < 1){
 
-	        	msg = isActive ? "deve estar selecionada" : "não deve estar selecionada";
-	        	msg = "Pelo menos uma linha " + msg;
+	        	msg = isActive ? " deve estar selecionada" : " não deve estar selecionada";
+	        	msg = "Pelo menos uma " + linhaColuna + msg;
 	        	console.log(msg);
 
 				msgerro += msg;
@@ -448,7 +459,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        }
 	        if("markersonly" == compositeData.tipo && series.length < 2){
 
-	        	msg = "Grafico de Disperão deve ter pelo menos duas colunas selecionadas";
+	        	msg = "Grafico de Disperão deve ter pelo menos duas "+colunaLinha+"s selecionadas";
 	        	console.log(msg);
 
 				msgerro += msg;
@@ -456,14 +467,14 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	       	}
 	       	if("bubles" == compositeData.tipo && series.length < 2){
 
-	       		msg = "Grafico de Bolhas deve ter pelo menos duas linhas selecionadas";
+	       		msg = "Grafico de Bolhas deve ter pelo menos duas "+linhaColuna+"s selecionadas";
 	       		console.log(msg);
 
 	       		msgerro += msg;
 	       		msgerro += "\n";       		
 	       	}
 	       	if(["lines","stackedlines"].indexOf(compositeData.tipo) >= 0 && rotulos.length < 2){
-	       		msg = "Grafico de Linhas deve ter pelo menos duas colunas selecionados";
+	       		msg = "Grafico de Linhas deve ter pelo menos duas "+colunaLinha+"s selecionados";
 	       		console.log(msg);
 
 	       		msgerro += msg;
@@ -556,7 +567,6 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
         		});
         	}
         }
-
 	    function evalInconsistencias(){
             var inconsistencias = compositeData.inconsistencias;
             if(inconsistencias){
@@ -595,10 +605,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                     polado = polados[poladoIndex];
                     poladoValue = polado.value;
                     poladoType = polado.type;
-
-                    index = getColumnIndexByRotulo(poladoValue);
-
-                    selector = 'tbody > tr > td[data-colunaIndex="'+index+'"]';
+                    index = rotulos.indexOf(poladoValue);
+                    if(inverted){
+                    	selector = 'tbody > tr > td[data-linhaIndex="'+index+'"]';
+                    }
+                    else{
+	                    selector = 'tbody > tr > td[data-colunaIndex="'+index+'"]';
+                    }
                     tds = xtrTable.getElements(selector);
                     for(tdIndex = 0; tds.length > tdIndex; tdIndex++){
                         td = tds[tdIndex];
@@ -611,6 +624,44 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                     }
                 };
             }
+        }
+        function select(){
+        	var selecionadoSeries,selecionadoSerie;
+        	var selecionadoSerieIndex;
+        	var selecionadoRotulos,selecionadoRotulo;
+        	var selecionadoRotuloIndex;
+
+        	var seletorRotulo,seletorSerie;
+
+        	seletorRotulo = inverted ? "data-target-linhaIndex" : "data-target-colunaIndex";
+        	seletorSerie = inverted ? "data-target-colunaIndex" : "data-target-linhaIndex";
+
+        	selecionadoSeries = compositeData.selecionadoSeries;
+        	selecionadoRotulos = compositeData.selecionadoRotulos;
+
+        	if(XtrGraficoUtil.isset(selecionadoSeries)){
+	        	for(selecionadoSerieIndex = 0; selecionadoSeries.length > selecionadoSerieIndex; selecionadoSerieIndex++){
+	        		selecionadoSerie = selecionadoSeries[selecionadoSerieIndex];
+	        		if(selecionadoSerie){
+	        			selecionadoSerie = document.querySelector("["+seletorSerie+"='"+selecionadoSerieIndex+"']");
+	        			if(selecionadoSerie != null){
+	        				selecionadoSerie.click();
+	        			}
+	        		}
+	        	};
+	        }
+	        if(XtrGraficoUtil.isset(selecionadoRotulos)){
+				for(selecionadoRotuloIndex = 0; selecionadoRotulos.length > selecionadoRotuloIndex; selecionadoRotuloIndex++){
+	        		selecionadoRotulo = selecionadoRotulos[selecionadoRotuloIndex];
+	        		if(selecionadoRotulo){
+	        			selecionadoRotulo = document.querySelector("["+seletorRotulo+"='"+selecionadoRotuloIndex+"']");
+	        			if(selecionadoRotulo != null){
+	        				selecionadoRotulo.click();
+	        			}
+	        		}        		
+	        	};
+	        }
+        	
         }
 	//////////////////////
 	//METODOS DE CLASSE //
@@ -668,11 +719,13 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    for(rotuloIndex = 0; rotulos.length > rotuloIndex; rotuloIndex++){
 				div = document.createElement("div");
 				div.setAttribute("class",classGroupButtons);
+				div = XtrGraficoUtil.setAttributes(div,styleGroupButtons);
 
 		        rotulo = rotulos[rotuloIndex];
 		        selectButtonObj = {
 		            "content": rotulo,
 		            "color": "default",
+		            "style": styleRotulo,
 		            "class": classRotulo,
 		            "data-clicado":false,
 		            "data-target-linhaIndex":rotuloIndex,
@@ -696,20 +749,22 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        };
 
 		        extrapolateButtonObj = {
-				    "content": "e",
+				    "content": inverted ? "<span class='fi-arrow-up' style='top:-.05em;position:relative'></span" : "e",
 				    "data-ponto-extrapolacao": rotuloIndex,                               
 				    "data-clicado":false,
 				    "color": "vermelho",
+				    "style": styleExtrapolate,
 				    "class": classExtrapolate,
 				    "onclick":function(){ 
 				        extrapolateAction(this);
 				    }
 			    };
 			    interpolateButtonObj = {
-		            "content": "i",
+		            "content": inverted ? "<span class='fi-arrow-down' style='top:.35em;position:relative'></span" : "i",
 		            "data-ponto-interpolacao": rotuloIndex+1,
 		            "data-clicado": false,
 		            "color": "azul",
+		            "style": styleInterpolate,
 		            "class": classInterpolate,
 		            "onclick": function(){ 
 	                    interpolateAction(this); 
@@ -746,8 +801,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			            "type":"th",
 			            "width": widthColumnTitleRotulo,
 			            "style": styleColumnTitleRotulo,
-			    		"data-colunaTitulo": true,
-			    		"data-colunaSeletor": true,
+			    		"data-linhaTitulo": true,
+			    		"data-linhaSeletor": true,
 			            "data-colunaAtiva": true,
 			            "data-linhaAtiva": true
 			        };
@@ -756,14 +811,15 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			        colunaObj = {
 			            "index": inverted ? 1 : rotuloIndex+1,
 			            "type":"th",
-			            "data-colunaIndex": rotuloIndex,
-			            "data-linhaIndex": 0,
 			            "width": widthColumnTitleRotulo,
 			            "style": styleColumnTitleRotulo,
 			    		"data-colunaTitulo": true,
 			    		"data-colunaSeletor": true,
 			            "data-colunaAtiva": true,
-			            "data-linhaAtiva": true
+			            "data-linhaAtiva": true,
+
+			            "data-colunaIndex": rotuloIndex,
+			            "data-linhaIndex": 0
 			        };
 			    }
 
@@ -776,16 +832,16 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		        valores = serie.dadosFormatados;
 		        nome = serie.titulo;
 		        //nome = XtrGraficoUtil.splitter(['Qtd de','Qtd'],nome,1)
-		        nome = nome.replace(" - "," ");
-		        nome = nome.replace("-"," ");
+		        //nome = nome.replace(" - "," ");
+		        //nome = nome.replace("-"," ");
 		        if(inverted){
 		        	colunaObj = {
 						"index": rotuloIndex,
 						"data-colunaIndex": serieIndex,
 				        "data-linhaIndex": 1,
 						"type": "th",
-			    		"data-linhaTitulo": true,
-			    		"data-linhaSeletor": true,
+			    		"data-colunaTitulo": true,
+			    		"data-colunaSeletor": true,
 						"width": widthColumnTitleSerie,
 						"style": styleColumnTitleSerie
 					};			            
@@ -877,10 +933,12 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 					colunaObj = {
 						"type": index==0 ? "th" : "td",
 			            "index": inverted ? series.length : rotulos.length,
-			            "data-colunaIndex": inverted ? series.length : rotulos.length,
+			            "data-colunaIndex": inverted ? series.length-1 : rotulos.length,
 			            "data-linhaIndex": index > 0 ? index-1 : index,
 			            "data-colunaAtiva": true,
 			            "data-linhaAtiva": true,
+			            "data-linhaRestante": true,
+			            "data-colunaRestante": true,
 			            "width": widthColumn
 			        };
 					linhaObj = {
@@ -1090,6 +1148,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			restante();
 			selects();
 			butoes();
+			select();
 
 			if(XtrGraficoUtil.isset(evaluate)){
 				evalInconsistencias();
