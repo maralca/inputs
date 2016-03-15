@@ -77,7 +77,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    	"position": "relative"
 	    };
 	    styleTitleSerie = {
-	    	"position": "absolute",
+	    	//"position": "absolute",
 	    	"top": "0px",
 	    	"height": "calc(100% - 0.6em)",
 	    	"-webkit-flex-direction": "column",
@@ -404,20 +404,22 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			removeSeriesAttr = inverted ? removeLineAttr : removeColumnAttr;
 
 			hasSelected = series.length != seriesToRemove.length;
-
+			
 			for(toRemoveIndex = 0; seriesToRemove.length > toRemoveIndex && hasSelected; toRemoveIndex++){
 				toRemove = seriesToRemove[toRemoveIndex];				
 				index = toRemove.getAttribute(removeLinesAttr);
+				index = index - toRemoveIndex;
 				serie = series.splice(index,1);
 				serie = serie[0];
-				console.log("(",index,")","Serie",serie.titulo,"foi removida");
+				console.log("(",toRemoveIndex,")","Serie",serie.titulo,"foi removida");
 			}
 
 			hasSelected = rotulos.length != pointsToRemove.length;
 
 			for(toRemoveIndex = 0; pointsToRemove.length > toRemoveIndex && hasSelected; toRemoveIndex++){
 				toRemove = pointsToRemove[toRemoveIndex];
-				index = toRemove.getAttribute(removeColumnAttr);
+				index = toRemove.getAttribute(removeColumnAttr);				
+				index = index - toRemoveIndex;
 				for(serieIndex = 0; series.length > serieIndex; serieIndex++){
 					serie = series[serieIndex];
 					serie.dados.splice(index,1);
@@ -426,7 +428,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				rotulos.splice(index,1);
 				rotulo = rotulosFormatados.splice(index,1);
 				rotulo = rotulo[0];
-				console.log("(",index,")","Rotulo",rotulo,"foi removido");
+				console.log("(",toRemoveIndex,")","Rotulo",rotulo,"foi removido");
 			}
 	        
 	        if(!mesclar){
