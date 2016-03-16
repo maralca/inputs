@@ -188,6 +188,26 @@ function XtrTable(tableId,where){
 	this.getId = function(){
 		return table.id;
 	}
+	this.onload = function(callback){
+		if(MutationObserver){
+			var mo;
+			mo = new MutationObserver(function(mutations){
+				mutations.forEach(function(mutation) {
+			        callback(mutation.target);
+			    });
+				mo.disconnect();
+			});
+
+			mo.observe(table,{ 
+				attributes: true, 
+				childList: true, 
+				characterData: true 
+			});
+		}
+		else{
+			table.addEventListener("DOMNodeInserted",callback);
+		}
+	};
 
 	return this;
 }

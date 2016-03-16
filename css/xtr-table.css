@@ -20,27 +20,25 @@ table.xtrTable tr td{
     overflow: hidden;
 }
 table.xtrTable tr:nth-of-type(odd) {
-    background-color: #F7F7F7!important
+    background-color: #F7F7F7!important;
 }
 
 table.xtrTable tr:nth-of-type(even) {
-    background-color: #FFFFFF!important
+    background-color: #FFFFFF!important;
 }
 table.xtrTable tr td{
     text-align: center;
 }
-table.xtrTable tbody tr td:last-child{
+table.xtrTable.sideEdges tbody tr td:last-child,
+table.xtrTable.sideEdges tbody tr th:first-child{
     border-right: 2px solid #C5C5C5;
 }
 table.xtrTable thead tr th:not(:first-child),
 table.xtrTable thead tr th:first-child:last-child{
-    border-bottom: 2px solid #C5C5C5
+    border-bottom: 2px solid #C5C5C5;
 }
 table.xtrTable tfoot tr th{
     border-top: 2px solid #C5C5C5;
-}
-table.xtrTable tbody tr th:first-child{
-     border-right: 2px solid #C5C5C5;
 }
 table.xtrTable tr.divider.bottom{
     border-bottom: 2px solid #C5C5C5;

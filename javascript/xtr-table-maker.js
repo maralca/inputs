@@ -56,6 +56,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classExtrapolateLegend = "xtr alert vermelho";
 	    classGenerateButton = "padding quadruplicado";
 
+	    colorGenereteButton = "ciano";
+	    colorInvertSelectionButton = "inverse";
+	    colorClearSelectionButton = "default";
+
 	    styleTableName = {
 	    	"opacity": ".65",
 	    	"text-align": "left",
@@ -74,13 +78,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    	
 	    }; 
 	    styleColumnTitleSerie = {
-	    	"height": "100%",
-	    	"position": "relative"
+	    	"height": "100%"
 	    };
 	    styleTitleSerie = {
-	    	//"position": "absolute",
-	    	"top": "0px",
-	    	"height": "calc(100% - 0.6em)",
 	    	"-webkit-flex-direction": "column",
 	    	"flex-direction": "column",
 	    	"text-align":"right"
@@ -354,27 +354,50 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		            });
 		        }
 		    }
-	    }	    
+	    }
 	    function action(invert){
 	    	var celulas,celula;
 	    	var celulaIndex;
 	    	var bool;
 
-	    	celulas = xtrTable.getElements(generalSelector());
-	    	console.log(celulas);
+	    	celulas = xtrTable.getElements(getColumnSelector()+","+getLineSelector());
 	    	for(celulaIndex = 0; celulas.length > celulaIndex; celulaIndex++){
 	    		celula = celulas[celulaIndex];
 	    		if(invert){
 	    			celula.click();	    			
 	    		}
 	    		else{
-	    			bool = celula.getAttribute("data-colunaAtiva");
+	    			bool = celula.getAttribute("data-clicado");
 	    			bool = XtrGraficoUtil.getBool(bool);
-	    			if(!bool){
+	    			if(bool){
 	    				celula.click();
 	    			}
 	    		}
 	    	}
+	    }
+	    function columnButtonSize(){
+	    	var buttons,button,buttonHeightest;
+	    	var buttonIndex;
+
+	    	var height;
+	    	var heightest;
+
+	    	heightest = -1;
+	    	xtrTable.onload(function(){
+		    	buttons = xtrTable.getElements(getColumnSelector());
+		    	for(buttonIndex = 0; buttons.length > buttonIndex; buttonIndex++){
+		    		button = buttons[buttonIndex];
+		    		height = button.getBoundingClientRect().height;
+		    		if(height > heightest){
+		    			heightest = height;
+		    			buttonHeightest = button;
+		    		}
+		    	}
+		    	for(buttonIndex = 0; buttons.length > buttonIndex; buttonIndex++){
+		    		button = buttons[buttonIndex];
+		    		button.style.setProperty("height","calc("+heightest+"px - 0.6em)");
+		    	}
+	    	});
 	    }
 	    function getColumnSelector(isActive){
 	    	return 'tbody tr:first-of-type td[data-colunaAtiva="'+isActive+'"]:not([data-colunaRestante])';
@@ -382,9 +405,11 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    function getLineSelector(isActive){
 	    	return 'tbody tr td:first-of-type[data-linhaAtiva="'+isActive+'"]:not([data-linhaRestante])';
 	    }
-	    function generalSelector(){
-	    	return 'tbody tr:first-of-type td:not([data-colunaRestante]),'
-	    	+'tbody tr td:first-of-type:not([data-linhaRestante])';
+	    function getLineSelector(){
+	    	return "[data-target-linhaIndex]";
+	    }
+	    function getColumnSelector(){
+	    	return "[data-target-colunaIndex]";
 	    }
 	    function makeSelectedCompositeData(isActive,mesclar){
 	        var linesToRemove,columnsToRemove,removeLinesAttr;
@@ -655,7 +680,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
                 };
             }
         }
-        function select(){
+        function selectAndClick(){
         	var selecionadoSeries,selecionadoSerie;
         	var selecionadoSerieIndex;
         	var selecionadoRotulos,selecionadoRotulo;
@@ -962,7 +987,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 					colunaObj = {
 						"type": index==0 ? "th" : "td",
 			            "index": inverted ? series.length : rotulos.length,
-			            "data-colunaIndex": inverted ? series.length-1 : rotulos.length,
+			            "data-colunaIndex": inverted ? series.length : rotulos.length,
 			            "data-linhaIndex": index > 0 ? index-1 : index,
 			            "data-colunaAtiva": true,
 			            "data-linhaAtiva": true,
@@ -1141,25 +1166,16 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				"colspan": 222,
 				"type": "th"
 			}
-
-			butaoGerarGrafico = {
-		        "content": "Gerar Grafico",
-		        "color": "roxo",
-		        "class": classGenerateButton,
-		        "onclick": function(){ 
-		            generateAction(false,mesclando);
-		        }
-		    }
 		    butaoInverterSelecao = {
 	            "content": "Inverter Seleção",
-	            "color": "inverse",
+	            "color": colorInvertSelectionButton,
 	            "onclick":function(){ 
                     action(true);
 	            }
 	        }
 		    butaoLimparSelecao = {
 	            "content": "Limpar Seleção",
-	            "color": "default",
+	            "color": colorClearSelectionButton,
 	            "onclick":function(){ 
                     action();
 	            }
@@ -1176,8 +1192,30 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	        div.appendChild(XtrButao(butaoLimparSelecao));
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
-	        linhaObj.index++;
-	        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoGerarGrafico));
+
+			linhaObj = {
+				"index": series.length+35,
+				"foot": true
+			}
+			colunaObj = {
+				"index": 0,
+				"colspan": 222,
+				"type": "th"
+			}
+
+			butaoGerarGrafico = {
+		        "content": "Gerar Grafico",
+		        "color": colorGenereteButton,
+		        "class": classGenerateButton,
+		        "onclick": function(){ 
+		            generateAction(false,mesclando);
+		        }
+		    }
+
+	        div = document.createElement("div");
+	        div.className = classButtons;
+	        div.appendChild(XtrButao(butaoGerarGrafico));
+	        xtrTable.appendIn(linhaObj,colunaObj,div);
 		}
 		function make(evaluate){
 			titulos(compositeData.dado == "cronologica");
@@ -1186,7 +1224,8 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			restante();
 			selects();
 			butoes();
-			select();
+			selectAndClick();
+			columnButtonSize();
 
 			if(XtrGraficoUtil.isset(evaluate)){
 				evalInconsistencias();
