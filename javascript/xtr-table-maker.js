@@ -54,6 +54,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	    classInconsistenciaLegend = "xtr alert amarelo";
 	    classInterpolateLegend = "xtr alert azul";
 	    classExtrapolateLegend = "xtr alert vermelho";
+	    classGenerateButton = "padding quadruplicado";
 
 	    styleTableName = {
 	    	"opacity": ".65",
@@ -353,12 +354,37 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		            });
 		        }
 		    }
+	    }	    
+	    function action(invert){
+	    	var celulas,celula;
+	    	var celulaIndex;
+	    	var bool;
+
+	    	celulas = xtrTable.getElements(generalSelector());
+	    	console.log(celulas);
+	    	for(celulaIndex = 0; celulas.length > celulaIndex; celulaIndex++){
+	    		celula = celulas[celulaIndex];
+	    		if(invert){
+	    			celula.click();	    			
+	    		}
+	    		else{
+	    			bool = celula.getAttribute("data-colunaAtiva");
+	    			bool = XtrGraficoUtil.getBool(bool);
+	    			if(!bool){
+	    				celula.click();
+	    			}
+	    		}
+	    	}
 	    }
 	    function getColumnSelector(isActive){
 	    	return 'tbody tr:first-of-type td[data-colunaAtiva="'+isActive+'"]:not([data-colunaRestante])';
 	    }
 	    function getLineSelector(isActive){
 	    	return 'tbody tr td:first-of-type[data-linhaAtiva="'+isActive+'"]:not([data-linhaRestante])';
+	    }
+	    function generalSelector(){
+	    	return 'tbody tr:first-of-type td:not([data-colunaRestante]),'
+	    	+'tbody tr td:first-of-type:not([data-linhaRestante])';
 	    }
 	    function makeSelectedCompositeData(isActive,mesclar){
 	        var linesToRemove,columnsToRemove,removeLinesAttr;
@@ -404,22 +430,24 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 			removeSeriesAttr = inverted ? removeLineAttr : removeColumnAttr;
 
 			hasSelected = series.length != seriesToRemove.length;
-			
 			for(toRemoveIndex = 0; seriesToRemove.length > toRemoveIndex && hasSelected; toRemoveIndex++){
 				toRemove = seriesToRemove[toRemoveIndex];				
 				index = toRemove.getAttribute(removeLinesAttr);
 				index = index - toRemoveIndex;
+				index = index > 0 ? index : 0;
 				serie = series.splice(index,1);
 				serie = serie[0];
-				console.log("(",toRemoveIndex,")","Serie",serie.titulo,"foi removida");
+				console.info("(",toRemoveIndex,")","Serie",serie.titulo,"foi removida");
 			}
 
 			hasSelected = rotulos.length != pointsToRemove.length;
 
 			for(toRemoveIndex = 0; pointsToRemove.length > toRemoveIndex && hasSelected; toRemoveIndex++){
 				toRemove = pointsToRemove[toRemoveIndex];
-				index = toRemove.getAttribute(removeColumnAttr);				
+				index = toRemove.getAttribute(removeColumnAttr);
+				index = parseInt(index);		
 				index = index - toRemoveIndex;
+				index = index > 0 ? index : 0;
 				for(serieIndex = 0; series.length > serieIndex; serieIndex++){
 					serie = series[serieIndex];
 					serie.dados.splice(index,1);
@@ -428,7 +456,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				rotulos.splice(index,1);
 				rotulo = rotulosFormatados.splice(index,1);
 				rotulo = rotulo[0];
-				console.log("(",toRemoveIndex,")","Rotulo",rotulo,"foi removido");
+				console.info("(",toRemoveIndex,")","Rotulo",rotulo,"foi removido");
 			}
 	        
 	        if(!mesclar){
@@ -662,8 +690,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 	        			}
 	        		}        		
 	        	};
-	        }
-        	
+	        }        	
         }
 	//////////////////////
 	//METODOS DE CLASSE //
@@ -687,7 +714,7 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    xtrTable.appendIn(linhaObj,colunaObj,div);
 
 		    linhaObj = {
-		        "index": series.length+55,
+		        "index": inverted ? rotulos.length+2 : series.length+2,
 		        "foot": true
 		    };
 		    colunaObj = {
@@ -1115,23 +1142,31 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 				"type": "th"
 			}
 
-			butaoSelecionadsObj = {
-		        "content": "Selecionados",
-		        "color": "inverse",
+			butaoGerarGrafico = {
+		        "content": "Gerar Grafico",
+		        "color": "roxo",
+		        "class": classGenerateButton,
 		        "onclick": function(){ 
 		            generateAction(false,mesclando);
 		        }
 		    }
-		    butaoNaoSelecionadosObj = {
-	            "content": "Não selecionados",
+		    butaoInverterSelecao = {
+	            "content": "Inverter Seleção",
+	            "color": "inverse",
+	            "onclick":function(){ 
+                    action(true);
+	            }
+	        }
+		    butaoLimparSelecao = {
+	            "content": "Limpar Seleção",
 	            "color": "default",
 	            "onclick":function(){ 
-                    generateAction(true,mesclando);
+                    action();
 	            }
 	        }
 	        div = document.createElement("div");
 	        div.className = classButtons;
-	        div.appendChild(XtrButao(butaoSelecionadsObj));
+	        div.appendChild(XtrButao(butaoInverterSelecao));
 
 	        if(hasDividerOnButtons){
 			    divider = document.createElement("div");
@@ -1139,9 +1174,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    	div.appendChild(divider);
 		    }
 
-	        div.appendChild(XtrButao(butaoNaoSelecionadosObj));
-
+	        div.appendChild(XtrButao(butaoLimparSelecao));
 	        xtrTable.appendIn(linhaObj,colunaObj,div);
+	        linhaObj.index++;
+	        xtrTable.appendIn(linhaObj,colunaObj,XtrButao(butaoGerarGrafico));
 		}
 		function make(evaluate){
 			titulos(compositeData.dado == "cronologica");
