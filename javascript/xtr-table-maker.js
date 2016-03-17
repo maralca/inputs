@@ -399,10 +399,10 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 		    	}
 	    	});
 	    }
-	    function getColumnSelector(isActive){
+	    function getCellColumnSelector(isActive){
 	    	return 'tbody tr:first-of-type td[data-colunaAtiva="'+isActive+'"]:not([data-colunaRestante])';
 	    }
-	    function getLineSelector(isActive){
+	    function getCellLineSelector(isActive){
 	    	return 'tbody tr td:first-of-type[data-linhaAtiva="'+isActive+'"]:not([data-linhaRestante])';
 	    }
 	    function getLineSelector(){
@@ -442,9 +442,9 @@ function TableMaker(tableId,compositeData,chunkSize,mesclando){
 
 	        isActive = !isActive;
 
-	        removeColumnSelector = getColumnSelector(isActive);
+	        removeColumnSelector = getCellColumnSelector(isActive);
 	        removeColumnAttr = "data-colunaIndex";
-			removeLineSelector = getLineSelector(isActive);
+			removeLineSelector = getCellLineSelector(isActive);
 			removeLineAttr = "data-linhaIndex";
 
 			linesToRemove = xtrTable.getElements(removeLineSelector);
